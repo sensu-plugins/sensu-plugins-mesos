@@ -1,18 +1,17 @@
-## Sensu-Plugins-disk-checks
+## Sensu-Plugins-mesos
 
-[![Build Status](https://travis-ci.org/sensu-plugins/sensu-plugins-mesos.svg?branch=master)][1]
-[![Gem Version](https://badge.fury.io/rb/sensu-plugins-mesos.svg)][2]
-[![Code Climate](https://codeclimate.com/github/sensu-plugins/sensu-plugins-mesos/badges/gpa.svg)][3]
-[![Test Coverage](https://codeclimate.com/github/sensu-plugins/sensu-plugins-mesos/badges/coverage.svg)][4]
-[![Dependency Status](https://gemnasium.com/sensu-plugins/sensu-plugins-mesos.svg)][5]
-
+[![Build Status](https://travis-ci.org/sensu-plugins/sensu-plugins-mesos.svg?branch=master)](https://travis-ci.org/sensu-plugins/sensu-plugins-mesos)
+[![Gem Version](https://badge.fury.io/rb/sensu-plugins-mesos.svg)](http://badge.fury.io/rb/sensu-plugins-mesos)
+[![Code Climate](https://codeclimate.com/github/sensu-plugins/sensu-plugins-mesos/badges/gpa.svg)](https://codeclimate.com/github/sensu-plugins/sensu-plugins-mesos)
+[![Test Coverage](https://codeclimate.com/github/sensu-plugins/sensu-plugins-mesos/badges/coverage.svg)](https://codeclimate.com/github/sensu-plugins/sensu-plugins-mesos)
+[![Dependency Status](https://gemnasium.com/sensu-plugins/sensu-plugins-mesos.svg)](https://gemnasium.com/sensu-plugins/sensu-plugins-mesos)
 ## Functionality
 
 ## Files
- *
- *
- *
- *
+ * bin/check-marathon
+ * bin/check-mesos
+ * bin/metrics-marathon
+ * bin/metrics-mesos
 
 ## Usage
 

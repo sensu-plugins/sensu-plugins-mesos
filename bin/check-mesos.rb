@@ -42,6 +42,13 @@ class MesosNodeStatus < Sensu::Plugin::Check::CLI
          long: '--mode MODE',
          required: true
 
+  option :timeout,
+         description: 'timeout in seconds',
+         short: '-t TIMEOUT',
+         long: '--timeout TIMEOUT',
+         proc: proc(&:to_i),
+         default: 5
+
   def run
     case config[:mode]
     when 'master'
@@ -52,7 +59,7 @@ class MesosNodeStatus < Sensu::Plugin::Check::CLI
       uri = '/slave(1)/health'
     end
     begin
-      r = RestClient::Resource.new("http://#{config[:server]}:#{port}#{uri}", timeout: 5).get
+      r = RestClient::Resource.new("http://#{config[:server]}:#{port}#{uri}", timeout: config[:timeout]).get
       if r.code == 200
         ok "Mesos #{config[:mode]} is up"
       else

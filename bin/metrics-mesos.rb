@@ -52,6 +52,13 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
          long: '--host SERVER',
          default: 'localhost'
 
+  option :timeout,
+         description: 'timeout in seconds',
+         short: '-t TIMEOUT',
+         long: '--timeout TIMEOUT',
+         proc: proc(&:to_i),
+         default: 5
+
   def run
     case config[:mode]
     when 'master'
@@ -63,7 +70,7 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
     end
     scheme = "#{config[:scheme]}.mesos-#{config[:mode]}"
     begin
-      r = RestClient::Resource.new("http://#{config[:server]}:#{port}#{uri}", timeout: 5).get
+      r = RestClient::Resource.new("http://#{config[:server]}:#{port}#{uri}", timeout: config[:timeout]).get
       JSON.parse(r).each do |k, v|
         k_copy = k.tr('/', '.')
         output([scheme, k_copy].join('.'), v)

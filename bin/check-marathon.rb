@@ -29,12 +29,20 @@
 require 'sensu-plugin/check/cli'
 require 'rest-client'
 
+DEFAULT_PORT = '8080'
+
 class MarathonNodeStatus < Sensu::Plugin::Check::CLI
   option :server,
-         description: 'Marathon Host',
-         short: '-s SERVER',
-         long: '--server SERVER',
+         description: 'Marathon servers, comma separated',
+         short: '-s SERVER1,SERVER2,...',
+         long: '--server SERVER1,SERVER2,...',
          default: 'localhost'
+
+  option :port,
+         description: "port (default #{DEFAULT_PORT})",
+         short: '-p PORT',
+         long: '--port PORT',
+         required: false
 
   option :timeout,
          description: 'timeout in seconds',
@@ -44,15 +52,27 @@ class MarathonNodeStatus < Sensu::Plugin::Check::CLI
          default: 5
 
   def run
-    r = RestClient::Resource.new("http://#{config[:server]}:8080/ping", timeout: config[:timeout]).get
-    if r.code == 200
-      ok 'Marathon Service is up'
-    else
-      critical 'Marathon Service is not responding'
+    servers = config[:server]
+    port = config[:port] || DEFAULT_PORT
+    failures = []
+    servers.split(',').each do |server|
+      begin
+        r = RestClient::Resource.new("http://#{server}:#{port}/ping", timeout: config[:timeout]).get
+        if r.code != 200
+          failures << "Marathon Service on #{server} is not responding"
+        end
+      rescue Errno::ECONNREFUSED, RestClient::ResourceNotFound, SocketError
+        failures << "Marathon Service on #{server} is not responding"
+      rescue RestClient::RequestTimeout
+        failures << "Marathon Service on #{server} connection timed out"
+      rescue Exception => e
+        1
+      end
     end
-  rescue Errno::ECONNREFUSED
-    critical 'Marathon Service is not responding'
-  rescue RestClient::RequestTimeout
-    critical 'Marathon Service Connection timed out'
+    if failures.empty?
+      ok "Marathon Service is up on #{servers}"
+    else
+      critical failures.join("\n")
+    end
   end
 end

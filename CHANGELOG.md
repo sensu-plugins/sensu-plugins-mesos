@@ -8,6 +8,7 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 ### Added
 - Timeout option.
 - Mesos check supports multiple servers.
+- Basic chronos check.
 
 ## 0.0.1 - 2015-05-21
 

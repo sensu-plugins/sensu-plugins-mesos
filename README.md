@@ -14,6 +14,7 @@
  * bin/check-mesos.rb
  * bin/metrics-marathon.rb
  * bin/metrics-mesos.rb
+ * bin/check-chronos.rb
 
 ## Usage
 

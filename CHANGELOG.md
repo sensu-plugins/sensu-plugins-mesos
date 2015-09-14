@@ -3,11 +3,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
-## Unreleased
+### [Unreeleased][unreleased]
+
+## 0.1.0 - 2015-09-14
+## Added
 - Added a check comparing Marathon instances for a specific task against the configured minimum
 
-## 0.0.4 - 2015-07-30
-
+## [0.0.4] - 2015-07-30
 ### Changed
 - Mesos check supports multiple servers.
 - Updated Rubocop to `0.32.1`
@@ -33,3 +35,8 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 
 ### Added
 - initial release
+
+[unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.1.0...HEAD
+[0.0.5]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.0.4...0.1.0
+[0.0.3]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.0.2...0.0.4
+[0.0.2]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.0.1...0.0.2

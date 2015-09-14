@@ -11,7 +11,7 @@ begin
   if RUBY_VERSION >= '2.0.0'
     args = [:spec, :yard, :rubocop]
   else
-    args = [:spec, :make_bin_executable, :yard]
+    args = [:spec, :yard]
   end
 end
 

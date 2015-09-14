@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
 ## Unreleased
-- nothing
+- Added a check comparing Marathon instances for a specific task against the configured minimum
 
 ## 0.0.4 - 2015-07-30
 

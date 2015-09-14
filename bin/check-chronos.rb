@@ -16,7 +16,7 @@
 #   gem: rest-client
 #
 # USAGE:
-#   #YELLOW
+#   
 #
 # NOTES:
 #

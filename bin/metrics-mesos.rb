@@ -33,6 +33,10 @@ require 'rest-client'
 require 'socket'
 require 'json'
 
+# Mesos default ports are defined here: http://mesos.apache.org/documentation/latest/configuration
+MASTER_DEFAULT_PORT = '5050'
+SLAVE_DEFAULT_PORT = '5051'
+
 class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
   option :mode,
          description: 'master or slave',
@@ -52,6 +56,12 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
          long: '--host SERVER',
          default: 'localhost'
 
+  option :port,
+         description: "port (default #{MASTER_DEFAULT_PORT} for master, #{SLAVE_DEFAULT_PORT} for slave)",
+         short: '-p PORT',
+         long: '--port PORT',
+         required: false
+         
   option :timeout,
          description: 'timeout in seconds',
          short: '-t TIMEOUT',
@@ -62,10 +72,10 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
   def run
     case config[:mode]
     when 'master'
-      port = '5050'
+      port = config[:port] || MASTER_DEFAULT_PORT
       uri = '/master/stats.json'
     when 'slave'
-      port = '5051'
+      port = config[:port] || SLAVE_DEFAULT_PORT
       uri = '/slave(1)/stats.json'
     end
     scheme = "#{config[:scheme]}.mesos-#{config[:mode]}"

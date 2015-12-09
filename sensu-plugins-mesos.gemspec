@@ -15,8 +15,8 @@ Gem::Specification.new do |s|
   s.authors                = ['Sensu Plugins and contributors']
   s.cert_chain             = ['certs/sensu-plugins.pem']
   s.date                   = Date.today.to_s
-  s.description            = 'This plugin provides navite Mesos instrumentation for monitoring 
-                              and metrics collection, including: service health and metrics 
+  s.description            = 'This plugin provides navite Mesos instrumentation for monitoring
+                              and metrics collection, including: service health and metrics
                               for Mesos, Chronos, and Marathon.'
   s.email                  = '<sensu-users@googlegroups.com>'
   s.executables            = Dir.glob('bin/**/*.rb').map { |file| File.basename(file) }

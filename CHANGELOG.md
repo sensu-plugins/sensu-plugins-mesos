@@ -3,7 +3,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
-### [Unreleased]
+## [Unreleased]
+
+## [0.1.1] - 2016-03-04
+### Added
+- metrics-mesos.rb, metrics-marathon.rb: add port option
+
+### Changed
+- Rubocop upgrade and cleanup
 
 ## [0.1.0] - 2015-09-14
 ### Added
@@ -34,7 +41,8 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.1.1...HEAD
+[0.1.1]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.0.4...0.1.0
 [0.0.4]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.0.2...0.0.4
 [0.0.2]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.0.1...0.0.2

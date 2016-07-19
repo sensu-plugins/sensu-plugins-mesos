@@ -49,7 +49,7 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
     failures = []
     config[:server].split(',').each do |s|
       begin
-        url = URI.parse("http://#{s}:#{config[:port]}/v2/tasks?state=running")
+        url = URI.parse("http://#{s}:#{config[:port]}/v2/tasks?status=running")
         req = Net::HTTP::Get.new(url)
         req.add_field('Accept', 'application/json')
         r = Net::HTTP.new(url.host, url.port).start do |h|

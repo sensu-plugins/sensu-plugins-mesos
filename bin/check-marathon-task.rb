@@ -33,6 +33,17 @@ require 'sensu-plugin/check/cli'
 require 'net/http'
 require 'json'
 
+# This plugin checks that the given Mesos/Marathon task is running properly.
+#
+# This means that all of the following is true:
+# 1. There are N tasks for the app, as defined by the --instances parameter
+# 2. Each task's state is running
+# 3. No task is unhealthy, as defined in Marathon
+#
+# A task is seen as **unhealthy** by Marathon if any of the health checks for
+# the task is not **alive**.  Alive means that a check has a last success that
+# is more recent than last failure. It's not alive if the last failure is more
+# recent than the last success, or if the last success doesn't exist at all.
 class MarathonTaskCheck < Sensu::Plugin::Check::CLI
   check_name 'CheckMarathonTask'
 
@@ -57,21 +68,41 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
         end
 
         tasks = JSON.parse(r.body)['tasks']
+
         tasks.select! do |t|
           t['appId'] == "/#{config[:task]}"
         end
 
+        unhealthy = []
+
+        # Collect last error message for all health checks that are not alive
+        tasks.each do |task|
+          checks = task['healthCheckResults'] || []
+          checks.each do |check|
+            if check['alive']
+              next
+            end
+            message = check['lastFailureCause'] ||
+                      'Health check not alive'
+            unhealthy << message
+          end
+        end
+
         message = "#{tasks.length}/#{config[:instances]} #{config[:task]} tasks running"
 
-        if tasks.length < config[:instances]
+        if unhealthy.any?
+          message << ":\n" << unhealthy.join("\n")
+        end
+
+        if unhealthy.any? || tasks.length < config[:instances]
           critical message
         end
 
         ok message
       rescue Errno::ECONNREFUSED, SocketError
         failures << "Marathon on #{s} could not be reached"
-      rescue
-        failures << "error caught trying to reach Marathon on #{s}"
+      rescue => err
+        failures << "error caught trying to reach Marathon on #{s}: #{err}"
       end
     end
 

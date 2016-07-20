@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+- check-marathon-task.rb: Use the health check results to verify that a task is running.
+- check-marathon-task.rb: Rename incorrect "state" parameter to "status".
 
 ## [0.1.1] - 2016-03-04
 ### Added

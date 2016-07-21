@@ -67,34 +67,15 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
           h.request(req)
         end
 
-        tasks = JSON.parse(r.body)['tasks']
+        ok_count, unhealthy = check_tasks r.body
 
-        tasks.select! do |t|
-          t['appId'] == "/#{config[:task]}"
-        end
-
-        unhealthy = []
-
-        # Collect last error message for all health checks that are not alive
-        tasks.each do |task|
-          checks = task['healthCheckResults'] || []
-          checks.each do |check|
-            if check['alive']
-              next
-            end
-            message = check['lastFailureCause'] ||
-                      'Health check not alive'
-            unhealthy << message
-          end
-        end
-
-        message = "#{tasks.length}/#{config[:instances]} #{config[:task]} tasks running"
+        message = "#{ok_count}/#{config[:instances]} #{config[:task]} tasks running"
 
         if unhealthy.any?
           message << ":\n" << unhealthy.join("\n")
         end
 
-        if unhealthy.any? || tasks.length < config[:instances]
+        if unhealthy.any? || ok_count < config[:instances]
           critical message
         end
 
@@ -107,5 +88,42 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
     end
 
     unknown "marathon task state could not be retrieved:\n" << failures.join("\n")
+  end
+
+  # Parses JSON data as returned from Marathon's tasks API
+  # @param data [String] Server response
+  # @return [Numeric, [String]] Number of running tasks and a list of error
+  #                             messages from unhealthy tasks
+  def check_tasks(data)
+    begin
+      tasks = JSON.parse(data)['tasks']
+    rescue JSON::ParserError
+      raise "Could not parse JSON response: #{data}"
+    end
+
+    if tasks.nil?
+      raise "No tasks in server response: #{data}"
+    end
+
+    tasks.select! do |t|
+      t['appId'] == "/#{config[:task]}"
+    end
+
+    unhealthy = []
+
+    # Collect last error message for all health checks that are not alive
+    tasks.each do |task|
+      checks = task['healthCheckResults'] || []
+      checks.each do |check|
+        if check['alive']
+          next
+        end
+        message = check['lastFailureCause'] ||
+                  'Health check not alive'
+        unhealthy << message
+      end
+    end
+
+    [tasks.length, unhealthy]
   end
 end

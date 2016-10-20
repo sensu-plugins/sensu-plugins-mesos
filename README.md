@@ -10,8 +10,13 @@
 
 ## Files
  * bin/check-chronos.rb
+ * bin/check-metronome.rb
  * bin/check-marathon.rb
  * bin/check-mesos.rb
+ * bin/check-mesos-cpu-balance.rb
+ * bin/check-mesos-disk-balance.rb
+ * bin/check-mesos-gpu-balance.rb
+ * bin/check-mesos-mem-balance.rb
  * bin/metrics-marathon.rb
  * bin/metrics-mesos.rb
 

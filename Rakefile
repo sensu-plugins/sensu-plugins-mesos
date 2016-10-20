@@ -22,9 +22,10 @@ YARD::Rake::YardocTask.new do |t|
 end
 
 RuboCop::RakeTask.new
-
-RSpec::Core::RakeTask.new(:spec) do |r|
-  r.pattern = FileList['**/**/*_spec.rb']
+FileList['**/**/*_spec.rb'].each do |f|
+  RSpec::Core::RakeTask.new(:spec) do |r|
+    r.pattern = FileList[f]
+  end
 end
 
 desc 'Make all plugins executable'

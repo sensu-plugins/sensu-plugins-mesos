@@ -42,6 +42,12 @@ class ChronosNodeStatus < Sensu::Plugin::Check::CLI
          long: '--port PORT',
          default: '80'
 
+  option :uri,
+         description: 'Endpoint URI',
+         short: '-u URI',
+         long: '--uri URI',
+         default: '/scheduler/jobs'
+
   option :timeout,
          description: 'timeout in seconds',
          short: '-t TIMEOUT',
@@ -51,10 +57,11 @@ class ChronosNodeStatus < Sensu::Plugin::Check::CLI
 
   def run
     servers = config[:server]
+    uri = config[:uri]
     failures = []
     servers.split(',').each do |server|
       begin
-        r = RestClient::Resource.new("http://#{server}:#{config[:port]}/scheduler/jobs", timeout: config[:timeout]).get
+        r = RestClient::Resource.new("http://#{server}:#{config[:port]}#{uri}", timeout: config[:timeout]).get
         if r.code != 200
           failures << "Chronos on #{server} is not responding"
         end

@@ -34,8 +34,8 @@ require 'socket'
 require 'json'
 
 # Mesos default ports are defined here: http://mesos.apache.org/documentation/latest/configuration
-MASTER_DEFAULT_PORT = '5050'.freeze
-SLAVE_DEFAULT_PORT = '5051'.freeze
+MASTER_DEFAULT_PORT ||= '5050'.freeze
+SLAVE_DEFAULT_PORT ||= '5051'.freeze
 
 class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
   option :mode,
@@ -62,6 +62,12 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
          long: '--port PORT',
          required: false
 
+  option :uri,
+         description: 'Endpoint URI',
+         short: '-u URI',
+         long: '--uri URI',
+         default: '/metrics/snapshot'
+
   option :timeout,
          description: 'timeout in seconds',
          short: '-t TIMEOUT',
@@ -70,13 +76,12 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
          default: 5
 
   def run
+    uri = config[:uri]
     case config[:mode]
     when 'master'
       port = config[:port] || MASTER_DEFAULT_PORT
-      uri = '/master/stats.json'
     when 'slave'
       port = config[:port] || SLAVE_DEFAULT_PORT
-      uri = '/slave(1)/stats.json'
     end
     scheme = "#{config[:scheme]}.mesos-#{config[:mode]}"
     begin

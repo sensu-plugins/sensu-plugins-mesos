@@ -50,6 +50,12 @@ class MarathonNodeStatus < Sensu::Plugin::Check::CLI
          required: false,
          default: 'http'
 
+  option :uri,
+         description: 'Endpoint URI',
+         short: '-u URI',
+         long: '--uri URI',
+         default: '/ping'
+
   option :timeout,
          description: 'timeout in seconds',
          short: '-t TIMEOUT',
@@ -62,7 +68,7 @@ class MarathonNodeStatus < Sensu::Plugin::Check::CLI
     failures = []
     servers.split(',').each do |server|
       begin
-        r = RestClient::Resource.new("#{config[:protocol]}://#{server}:#{config[:port]}/ping", timeout: config[:timeout]).get
+        r = RestClient::Resource.new("#{config[:protocol]}://#{server}:#{config[:port]}#{config[:uri]}", timeout: config[:timeout]).get
         if r.code != 200
           failures << "Marathon Service on #{server} is not responding"
         end

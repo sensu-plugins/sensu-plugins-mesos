@@ -38,8 +38,9 @@ Gem::Specification.new do |s|
   s.test_files             = s.files.grep(%r{^(test|spec|features)/})
   s.version                = SensuPluginsMesos::Version::VER_STRING
 
-  s.add_runtime_dependency 'rest-client',  '1.8.0'
+  s.add_runtime_dependency 'rest-client',  '2.0'
   s.add_runtime_dependency 'sensu-plugin', '~> 1.2'
+  s.add_runtime_dependency 'daybreak', '0.3.0'
 
   s.add_development_dependency 'bundler',                   '~> 1.7'
   s.add_development_dependency 'codeclimate-test-reporter', '~> 0.4'

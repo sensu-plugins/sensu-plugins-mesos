@@ -43,6 +43,13 @@ class MarathonNodeStatus < Sensu::Plugin::Check::CLI
          required: false,
          default: '8080'
 
+  option :protocol,
+         description: 'Marathon protocol [http/https]',
+         short: '-P PROTOCOL',
+         long: '--protocol PROTOCOL',
+         required: false,
+         default: 'http'
+
   option :timeout,
          description: 'timeout in seconds',
          short: '-t TIMEOUT',
@@ -55,7 +62,7 @@ class MarathonNodeStatus < Sensu::Plugin::Check::CLI
     failures = []
     servers.split(',').each do |server|
       begin
-        r = RestClient::Resource.new("http://#{server}:#{config[:port]}/ping", timeout: config[:timeout]).get
+        r = RestClient::Resource.new("#{config[:protocol]}://#{server}:#{config[:port]}/ping", timeout: config[:timeout]).get
         if r.code != 200
           failures << "Marathon Service on #{server} is not responding"
         end

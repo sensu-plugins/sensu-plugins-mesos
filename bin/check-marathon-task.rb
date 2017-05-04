@@ -50,20 +50,40 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
   option :server, short: '-s SERVER', long: '--server SERVER', required: true
   option :port, short: '-p PORT', long: '--port PORT', default: 8080
   option :task, short: '-t TASK', long: '--task TASK', required: true
-  option :instances, short: '-i INSTANCES', long: '--instances INSTANCES', required: true, proc: proc(&:to_i)
+  option :instances, short: '-i INSTANCES',
+                     long: '--instances INSTANCES',
+                     required: true,
+                     proc: proc(&:to_i)
+  option :protocol, short: '-P PROTOCOL',
+                    long: '--protocol PROTOCOL',
+                    required: false,
+                    default: 'http'
+  option :username, short: '-u USERNAME',
+                    long: '--username USERNAME',
+                    required: false
+  option :password, long: '--password PASSWORD', required: false
 
   def run
-    if config[:instances] == 0
+    if config[:instances].zero?
       unknown 'number of instances should be an integer'
+    end
+
+    if !config[:username].nil? && config[:password].nil? ||
+       config[:username].nil? && !config[:password].nil?
+      unknown 'You must provide both username and password'
     end
 
     failures = []
     config[:server].split(',').each do |s|
       begin
-        url = URI.parse("http://#{s}:#{config[:port]}/v2/tasks?status=running")
+        url = URI.parse("#{config[:protocol]}://#{s}:#{config[:port]}/v2/tasks?status=running")
         req = Net::HTTP::Get.new(url)
         req.add_field('Accept', 'application/json')
-        r = Net::HTTP.new(url.host, url.port).start do |h|
+        if !config[:username].nil? && !config[:password].nil?
+          req.basic_auth(config[:username], config[:password])
+        end
+        r = Net::HTTP.start(url.host, url.port,
+                            use_ssl: config[:protocol] == 'https') do |h|
           h.request(req)
         end
 

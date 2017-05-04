@@ -6,6 +6,9 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 ## [Unreleased]
 - check-marathon-task.rb: Use the health check results to verify that a task is running.
 - check-marathon-task.rb: Rename incorrect "state" parameter to "status".
+- Add https support and authentication to marathon plugins: (thanks to Erasys GmbH)
+    - Add "protocol" option to check-marathon and metrics-marathon
+    - Add "protocol", "username" and "password" options to check-marathon-task
 
 ## [0.1.1] - 2016-03-04
 ### Added

@@ -50,11 +50,16 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
   option :server, short: '-s SERVER', long: '--server SERVER', required: true
   option :port, short: '-p PORT', long: '--port PORT', default: 8080
   option :task, short: '-t TASK', long: '--task TASK', required: true
-  option :instances, short: '-i INSTANCES', long: '--instances INSTANCES',
-                     required: true, proc: proc(&:to_i)
-  option :protocol, short: '-P PROTOCOL', long: '--protocol PROTOCOL',
-                    required: false, default: 'http'
-  option :username, short: '-u USERNAME', long: '--username USERNAME',
+  option :instances, short: '-i INSTANCES',
+                     long: '--instances INSTANCES',
+                     required: true,
+                     proc: proc(&:to_i)
+  option :protocol, short: '-P PROTOCOL',
+                    long: '--protocol PROTOCOL',
+                    required: false,
+                    default: 'http'
+  option :username, short: '-u USERNAME',
+                    long: '--username USERNAME',
                     required: false
   option :password, long: '--password PASSWORD', required: false
 

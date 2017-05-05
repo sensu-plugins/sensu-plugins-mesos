@@ -4,23 +4,26 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+## [1.0.0] - 2017-05-05
+### Breaking Change
+- check-mesos.rb: removed the `mode` parameter (@luisdavim)
 
 ### Added
-- check-metronome.rb: Check if Metronome is running
-- check-mesos-cpu-balance.rb: Check for imballanced use of CPU accross mesos agents
-- check-mesos-gpu-balance.rb: Check for imballanced use of GPU accross mesos agents
-- check-mesos-disk-balance.rb: Check for imballanced use of disk accross mesos agents
-- check-mesos-mem-balance.rb: Check for imballanced use of memory accross mesos agents
+- check-metronome.rb: Check if Metronome is running (@luisdavim)
+- check-mesos-cpu-balance.rb: Check for imballanced use of CPU accross mesos agents (@luisdavim)
+- check-mesos-gpu-balance.rb: Check for imballanced use of GPU accross mesos agents (@luisdavim)
+- check-mesos-disk-balance.rb: Check for imballanced use of disk accross mesos agents (@luisdavim)
+- check-mesos-mem-balance.rb: Check for imballanced use of memory accross mesos agents (@luisdavim)
 
 ### Changed
-- check-marathon-task.rb: Use the health check results to verify that a task is running.
-- check-marathon-task.rb: Rename incorrect "state" parameter to "status".
+- check-marathon-task.rb: Use the health check results to verify that a task is running. (@andrelaszlo)
+- check-marathon-task.rb: Rename incorrect "state" parameter to "status". (@andrelaszlo)
 - Add https support and authentication to marathon plugins: (thanks to Erasys GmbH)
     - Add "protocol" option to check-marathon and metrics-marathon
     - Add "protocol", "username" and "password" options to check-marathon-task
-- All checks now have a configurable API endpoint using --uri or -u
-- Support the latest Mesos API
-- Dropped support for Ruby 1.9.3
+- All checks now have a configurable API endpoint using --uri or -u (@luisdavim)
+- Support the latest Mesos API (@luisdavim)
+- Dropped support for Ruby 1.9.3 (@luisdavim)
 
 ## [0.1.1] - 2016-03-04
 ### Added
@@ -58,7 +61,8 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.1.1...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.1.1...1.0.0
 [0.1.1]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.0.4...0.1.0
 [0.0.4]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.0.2...0.0.4

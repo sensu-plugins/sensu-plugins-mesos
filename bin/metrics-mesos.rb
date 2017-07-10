@@ -91,9 +91,9 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
         output([scheme, k_copy].join('.'), v)
         next unless k_copy == 'master.elected' && config[:mode] == 'master'
         if v != 0.0
-          output([scheme, 'master.status'].join('.'), 'leader')
+          output([scheme, 'master.status.leader'].join('.'), 1)
         else
-          output([scheme, 'master.status'].join('.'), 'standby')
+          output([scheme, 'master.status.standby'].join('.'), 1)
         end
       end
     rescue Errno::ECONNREFUSED

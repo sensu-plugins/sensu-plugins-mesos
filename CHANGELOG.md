@@ -3,6 +3,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
+### Added
+- metrics-mesos.rb: Added metric in "Telegraf style" to note whether a master node is leader or standby
+
 ## [Unreleased]
 ## [1.0.0] - 2017-05-05
 ### Breaking Change

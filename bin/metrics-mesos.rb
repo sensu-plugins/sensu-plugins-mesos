@@ -89,6 +89,12 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
       JSON.parse(r).each do |k, v|
         k_copy = k.tr('/', '.')
         output([scheme, k_copy].join('.'), v)
+        next unless k_copy == 'master.elected' && config[:mode] == 'master'
+        if v != 0.0
+          output([scheme, 'master.status'].join('.'), 'leader')
+        else
+          output([scheme, 'master.status'].join('.'), 'standby')
+        end
       end
     rescue Errno::ECONNREFUSED
       critical "Mesos #{config[:mode]} is not responding"

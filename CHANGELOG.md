@@ -1,12 +1,14 @@
-#Change Log
+# Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
+## [Unreleased]
+
+### [1.1.0] - 2017-07-10
 ### Added
 - metrics-mesos.rb: Added option "include_role" to inject in metric fields whether a master node is leader or standby
 
-## [Unreleased]
 ## [1.0.0] - 2017-05-05
 ### Breaking Change
 - check-mesos.rb: removed the `mode` parameter (@luisdavim)
@@ -64,7 +66,8 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.1.1...1.0.0
 [0.1.1]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.0.4...0.1.0

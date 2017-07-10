@@ -75,6 +75,12 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
          proc: proc(&:to_i),
          default: 5
 
+  option :include_role,
+         description: 'Include master role in metrics',
+         short: '-r INCLUDE_ROLE',
+         long: '--host INCLUDE_ROLE',
+         default: 'false'
+
   def run
     uri = config[:uri]
     case config[:mode]
@@ -86,9 +92,19 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
     scheme = "#{config[:scheme]}.mesos-#{config[:mode]}"
     begin
       r = RestClient::Resource.new("http://#{config[:server]}:#{port}#{uri}", timeout: config[:timeout]).get
-      JSON.parse(r).each do |k, v|
+      results = JSON.parse(r)
+      if config[:include_role] == 'true' && config[:mode] == 'master'
+        add_metric = if results['master/elected'] != 0.0
+                       'leader.'
+                     else
+                       'standby.'
+                     end
+      else
+        add_metric = ''
+      end
+      results.each do |k, v|
         k_copy = k.tr('/', '.')
-        output([scheme, k_copy].join('.'), v)
+        output([scheme, add_metric + k_copy].join('.'), v)
       end
     rescue Errno::ECONNREFUSED
       critical "Mesos #{config[:mode]} is not responding"

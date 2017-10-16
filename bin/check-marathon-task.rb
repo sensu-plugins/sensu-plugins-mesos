@@ -36,7 +36,7 @@ require 'json'
 # This plugin checks that the given Mesos/Marathon task is running properly.
 #
 # This means that all of the following is true:
-# 1. There are N tasks for the app, as defined by the --instances parameter
+# 1. There are N tasks for the app, as defined by the --instances parameter or checks configured tasks in Marathon as fallback
 # 2. Each task's state is running
 # 3. No task is unhealthy, as defined in Marathon
 #
@@ -71,7 +71,8 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
   option :instances,
          short: '-i INSTANCES',
          long: '--instances INSTANCES',
-         required: true,
+         required: false,
+         default: 0,
          proc: proc(&:to_i)
 
   option :protocol,
@@ -90,10 +91,6 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
          required: false
 
   def run
-    if config[:instances].zero?
-      unknown 'number of instances should be an integer'
-    end
-
     if !config[:username].nil? && config[:password].nil? ||
        config[:username].nil? && !config[:password].nil?
       unknown 'You must provide both username and password'
@@ -106,25 +103,23 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
         url = URI.parse("#{config[:protocol]}://#{s}:#{config[:port]}#{uri}")
         req = Net::HTTP::Get.new(url)
         req.add_field('Accept', 'application/json')
-        if !config[:username].nil? && !config[:password].nil?
-          req.basic_auth(config[:username], config[:password])
-        end
+        req.basic_auth(config[:username], config[:password]) if !config[:username].nil? && !config[:password].nil?
         r = Net::HTTP.start(url.host, url.port,
                             use_ssl: config[:protocol] == 'https') do |h|
           h.request(req)
         end
-
+        expected = if config[:instances].zero?
+                     default_tasks(s)
+                   else
+                     config[:instances]
+                   end
         ok_count, unhealthy = check_tasks r.body
 
-        message = "#{ok_count}/#{config[:instances]} #{config[:task]} tasks running"
+        message = "#{ok_count}/#{expected} #{config[:task]} tasks running"
 
-        if unhealthy.any?
-          message << ":\n" << unhealthy.join("\n")
-        end
+        message << ":\n" << unhealthy.join("\n") if unhealthy.any?
 
-        if unhealthy.any? || ok_count < config[:instances]
-          critical message
-        end
+        critical message if unhealthy.any? || ok_count < config[:instances]
 
         ok message
       rescue Errno::ECONNREFUSED, SocketError
@@ -172,5 +167,18 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
     end
 
     [tasks.length, unhealthy]
+  end
+
+  def default_tasks(server)
+    expected_tasks_url = "/v2/apps/#{config[:task]}"
+    url = URI.parse("#{config[:protocol]}://#{server}:#{config[:port]}#{expected_tasks_url}")
+    req = Net::HTTP::Get.new(url)
+    req.add_field('Accept', 'application/json')
+    r = Net::HTTP.start(url.host, url.port,
+                        use_ssl: config[:protocol] == 'https') do |h|
+      h.request(req)
+    end
+    n_tasks = JSON.parse(r.body)['app']['instances']
+    n_tasks
   end
 end

@@ -30,7 +30,7 @@
 #
 
 require 'sensu-plugin/check/cli'
-require 'net/http'
+require 'rest-client'
 require 'json'
 
 # This plugin checks that the given Mesos/Marathon task is running properly.
@@ -90,6 +90,13 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
          long: '--password PASSWORD',
          required: false
 
+  option :timeout,
+         description: 'timeout in seconds',
+         short: '-T TIMEOUT',
+         long: '--timeout TIMEOUT',
+         proc: proc(&:to_i),
+         default: 5
+
   def run
     if !config[:username].nil? && config[:password].nil? ||
        config[:username].nil? && !config[:password].nil?
@@ -100,20 +107,15 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
     uri = config[:uri]
     config[:server].split(',').each do |s|
       begin
-        url = URI.parse("#{config[:protocol]}://#{s}:#{config[:port]}#{uri}")
-        req = Net::HTTP::Get.new(url)
-        req.add_field('Accept', 'application/json')
-        req.basic_auth(config[:username], config[:password]) if !config[:username].nil? && !config[:password].nil?
-        r = Net::HTTP.start(url.host, url.port,
-                            use_ssl: config[:protocol] == 'https') do |h|
-          h.request(req)
-        end
+        auth_headers = {}
+        auth_headers = { Authorization: "#{config[:username]} #{config[:password]}" } if !config[:username].nil? && !config[:password].nil?
+        r = RestClient::Resource.new("#{config[:protocol]}://#{s}:#{config[:port]}#{uri}", auth_headers, config[:timeout]).get
         expected = if config[:instances].zero?
                      default_tasks(s)
                    else
                      config[:instances]
                    end
-        ok_count, unhealthy = check_tasks r.body
+        ok_count, unhealthy = check_tasks r
 
         message = "#{ok_count}/#{expected} #{config[:task]} tasks running"
 
@@ -171,14 +173,10 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
 
   def default_tasks(server)
     expected_tasks_url = "/v2/apps/#{config[:task]}"
-    url = URI.parse("#{config[:protocol]}://#{server}:#{config[:port]}#{expected_tasks_url}")
-    req = Net::HTTP::Get.new(url)
-    req.add_field('Accept', 'application/json')
-    r = Net::HTTP.start(url.host, url.port,
-                        use_ssl: config[:protocol] == 'https') do |h|
-      h.request(req)
-    end
-    n_tasks = JSON.parse(r.body)['app']['instances']
+    auth_headers = {}
+    auth_headers = { Authorization: "#{config[:username]} #{config[:password]}" } if !config[:username].nil? && !config[:password].nil?
+    r = RestClient::Resource.new("#{config[:protocol]}://#{server}:#{config[:port]}#{expected_tasks_url}", auth_headers, config[:timeout]).get
+    n_tasks = JSON.parse(r)['app']['instances']
     n_tasks
   end
 end

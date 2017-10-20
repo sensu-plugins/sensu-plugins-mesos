@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Changed
 - check-marathon-task.rb: if instances are not defined, plugin will check number of configured instances in Marathon. Also removed Net::HTTP in favour of Restclient::Resource
 
 ## [2.0.0] - 2017-07-15

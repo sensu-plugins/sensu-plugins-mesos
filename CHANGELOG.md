@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+
+## [2.1.0] - 2017-10-20
 ### Changed
 - check-marathon-task.rb: if instances are not defined, plugin will check number of configured instances in Marathon. Also removed Net::HTTP in favour of Restclient::Resource
 
@@ -76,7 +78,8 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.0.0...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/1.1.0...2.0.0
 [1.1.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/0.1.1...1.0.0

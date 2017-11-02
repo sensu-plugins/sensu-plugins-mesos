@@ -121,7 +121,7 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
 
         message << ":\n" << unhealthy.join("\n") if unhealthy.any?
 
-        critical message if unhealthy.any? || ok_count < config[:instances]
+        critical message if unhealthy.any? || ok_count < expected
 
         ok message
       rescue Errno::ECONNREFUSED, SocketError

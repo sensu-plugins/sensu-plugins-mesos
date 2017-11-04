@@ -5,6 +5,7 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 
 ## [Unreleased]
 
+## [2.2.1] - 2017-11-04
 ### Fixed
 - check-marathon-task.rb: solved a bug which prevented to alert when number of instances were retrieved from Marathon
 
@@ -82,6 +83,7 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 - initial release
 
 [Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.1.0...HEAD
+[2.1.1]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/1.1.0...2.0.0
 [1.1.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/1.0.0...1.1.0

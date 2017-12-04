@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+### Fixed
+- metrics-marathon.rb: ignore 2 new keys (start, end) in Marathon 1.5 /metrics endpoint
 
 ## [2.2.1] - 2017-11-04
 ### Fixed

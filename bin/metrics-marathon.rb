@@ -34,7 +34,7 @@ require 'socket'
 require 'json'
 
 class MarathonMetrics < Sensu::Plugin::Metric::CLI::Graphite
-  SKIP_ROOT_KEYS = %w(version).freeze
+  SKIP_ROOT_KEYS = %w(version start end).freeze
   option :scheme,
          description: 'Metric naming scheme',
          short: '-s SCHEME',

@@ -4,8 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
+
+## [2.2.2] - 2017-12-05
 ### Fixed
-- metrics-marathon.rb: ignore 2 new keys (start, end) in Marathon 1.5 /metrics endpoint
+- metrics-marathon.rb: ignore 2 new keys (start, end) in Marathon 1.5 /metrics endpoint (@bergerx)
 
 ## [2.2.1] - 2017-11-04
 ### Fixed
@@ -84,7 +86,8 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.1.0...HEAD
+[Unreleased]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.1.2...HEAD
+[2.1.2]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/sensu-plugins/sensu-plugins-mesos/compare/1.1.0...2.0.0

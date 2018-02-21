@@ -1,3 +1,4 @@
+#!/opt/sensu/embedded/bin/ruby
 #!/usr/bin/env ruby
 #
 #   check-marathon-apps
@@ -83,6 +84,7 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
   option :marathon_keys,
     long: '--marathon-keys KEY1,KEY2,KEY3',
     default: 'id,version,versionInfo,tasksStaged,tasksRunning,tasksHealthy,tasksUnhealthy,lastTaskFailure',
+    #default: 'id,version,versionInfo,tasksStaged,tasksRunning,tasksHealthy,tasksUnhealthy,lastTaskFailure',
     required: false,
     description: 'Keys retrieved from Marathon API that will be included in the output',
     proc: proc { |a| a.split(',') }
@@ -111,48 +113,85 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
       unknown 'You must provide both username and password'
     end
 
+    #puts config
+    puts 'config'
+    #puts config[:marathon_keys]
+
     apps = get_apps
+    puts 'apps'
     queue = get_queue
 
-    apps.keep_if {|app| app['id'][/#{config['match_pattern']}/] } if config['match_pattern']
+    apps.keep_if {|app| app['id'][/#{config[:match_pattern]}/] } if config[:match_pattern]
     apps.delete_if {|app| app['id'][/#{config[:exclude_pat]}/] } if config[:exclude_pat]
 
     apps.each do |app|
       # queue must be filtered before reaching this point and should only contain items that matches app['id']
-      app_queue =  queue.select {|q| q['app']['id'][/^#{app['id']}$/]}
+      app_queue = queue.select {|q| q['app']['id'][/^#{app['id']}$/]}.to_a[0]
+      puts 'queue'
+      #puts JSON.pretty_generate(app_queue)
+      puts 'app'
+      puts app['id']
+
+      check_config = parse_json(config[:default_check_config])
+      labels_check_config = get_labels_check_config(app['labels'].to_h)
+
+      #puts 'env_config'
+      #puts JSON.pretty_generate(get_labels_check_config(app['labels']))
+      #puts 'check_config'
+      #puts JSON.pretty_generate(check_config)
+
       check_result = check_result_scaffold(app)
 
-      check_config = parse_json(config['default_check_config'])
-      check_config.merge(get_env_check_config(app['env']))
-
-      check_result['marathon']['status'] = get_marathon_app_status(app, app_queue)
-      check_result['marathon']['health'] = get_marathon_app_health(app)
-
       %w[health status].each do |reference|
-        check_result['name'] = "check_marathon_app_#{reference}#{app['id'].gsub('/','_')}"
-        check_result['output'] = "Check #{reference.upcase} #{check_result['marathon'][reference].capitalize} - "\
-          "tasksRunning(#{app['tasksRunning'].to_i}), tasksStaged(#{app['tasksStaged'].to_i}), "\
-          "tasksHealthy(#{app['tasksHealthy'].to_i}), tasksUnhealthy(#{app['tasksUnhealthy'].to_i})"
-        check_result['status'] = check_config[reference]['status']
+        check_result['name'] = "check_marathon_app#{app['id'].gsub('/','_')}_#{reference}"
+
+        condition = case reference
+        when 'health'
+          get_marathon_app_health(app)
+        when 'status'
+          get_marathon_app_status(app, app_queue)
+        end
+
+        # Merge user provided check config
+        check_result.merge!(check_config.dig(reference, condition).to_h)
+
+        puts 'check_result'
+        puts JSON.pretty_generate(check_result)
+        # Merge user provided check config
+        #puts 'labels'
+        #puts labels_check_config.dig(reference, condition)
+        #puts JSON.pretty_generate(get_labels_check_config(app['labels'].to_h).dig(reference, condition).to_h)
+        #check_result.merge!(labels_check_config.dig(reference, condition).to_h)
+        check_result['ttl'] = 10
+
+        #check_result['output'] = "#{reference.upcase} #{check_result['marathon'][reference].capitalize} - "\
+        #  "tasksRunning(#{app['tasksRunning'].to_i}), tasksStaged(#{app['tasksStaged'].to_i}), "\
+        #  "tasksHealthy(#{app['tasksHealthy'].to_i}), tasksUnhealthy(#{app['tasksUnhealthy'].to_i})"
+
+        puts 'check_result'
+        puts JSON.pretty_generate(check_result)
+
         post_check_result(check_result)
       end
     end
+
+    ok 'Marathon Apps Status and Health check is running properly'
   end
 
   def check_result_scaffold(app)
     {
-      name: '',
-      executed: Time.now.to_i,
-      marathon: app.select {|k,v| config['marathon_keys'].include?(k)},
-      source: 'marathon',
-      output: '',
-      status: 3
+      'name' => '',
+      'executed' => Time.now.to_i,
+      'marathon' => app.select {|k, _| config[:marathon_keys].split(',').include?(k)},
+      'source' => 'marathon',
+      'output' => '',
+      'status' => 3
     }
   end
 
   def get(path)
     begin
-      RestClient.get("#{config[:url]}#{path}", user: config[:username], password: config[:password], accept: 'application/json', timeout: 10).body
+      RestClient.get("#{config[:url]}#{path}", user: config[:username], password: config[:password], accept: 'application/json', timeout: config[:timeout]).body
     rescue RestClient::ExceptionWithResponse => e
       critical "Error while trying to GET (#{config[:url]}#{path}): #{e.response}"
     rescue => e
@@ -172,30 +211,30 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
 
   def post_check_result(data)
     begin
-      RestClient.post("#{config['sensu_client_url']}/results", data, content_type: 'application/json', timeout: config['timeout'])
+      RestClient.post("#{config[:sensu_client_url]}/results", data.to_json, content_type: 'application/json', timeout: config[:timeout])
     rescue RestClient::ExceptionWithResponse => e
-      critical "Error while trying to POST check result (#{config['sensu_client_url']}/results): #{e.response}"
+      critical "Error while trying to POST check result (#{config[:sensu_client_url]}/results): #{e.response}"
     rescue => e
-      critical "Failed to reach #{config['sensu_client_url']}/results due to: #{e}"
+      critical "Failed to reach #{config[:sensu_client_url]}/results due to: #{e}"
     end
   end
 
   def parse_json(json)
     begin
-      JSON.parse(json)
+      JSON.parse(json.to_s)
     rescue JSON::ParserError => e
       critical "Failed to parse JSON: #{e}\nJSON => #{json}"
     end
   end
 
-  def get_env_check_config(app_envs)
+  def get_labels_check_config(app_labels)
     config = {}
 
     # Only grab env that starts with SENSU_MARATHON
-    envs = app_envs.select {|e| /^SENSU_MARATHON/.match(e)}
+    labels = app_labels.to_h.select {|e| /^SENSU_MARATHON/.match(e)}
 
-    envs.each do |env, value|
-      config_keys = env.split('_')
+    labels.each do |label, value|
+      config_keys = label.split('_')
 
       # Delete SENSU and MARATHON element
       config_keys.delete_if {|k| /^SENSU$|^MARATHON$/.match(k)}
@@ -204,17 +243,16 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
       config_keys.map!(&:downcase)
 
       # Convert config_keys into nested hash keys
-      conf  = array.reverse.inject(value) { |a, b| { b: a } }
-      config.merge!(conf)
+      config.merge!(config_keys.reverse.inject(value) { |a, b| { b => a } })
     end
     return config
   end
 
-  def get_marathon_app_status(app, queue)
+  def get_marathon_app_status(app, app_queue)
     # https://mesosphere.github.io/marathon/docs/marathon-ui.html#application-status-reference
-    if queue['delay']['overdue'] == true
+    if app_queue.to_h.dig('delay','overdue') == true
       'waiting'
-    elsif queue['delay']['overdue'] == false
+    elsif app_queue.to_h.dig('delay','overdue') == false
       'delayed'
     elsif app['instances'].to_i.zero? and app['tasksRunning'].to_i.zero?
       'suspended'
@@ -229,7 +267,7 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
 
   def get_marathon_app_health(app)
     # https://mesosphere.github.io/marathon/docs/marathon-ui.html#application-health-reference
-    if apps[0]['tasks'].to_a.length.zero? and apps[0]['deployments'].to_a.length.zero?
+    if app['tasks'].to_a.length.zero? and app['deployments'].to_a.length.zero?
       'unscheduled'
     elsif app['instances'].to_i < app['tasksRunning'].to_i
       'overcapacity'

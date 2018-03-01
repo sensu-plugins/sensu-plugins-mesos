@@ -68,7 +68,60 @@ require 'json'
 # }
 #
 class MarathonAppsCheck < Sensu::Plugin::Check::CLI
+  REFERENCES = %w[health status]
+  STATUS_CONDITIONS = %w[waiting delayed suspended deploying running]
+  HEALTH_CONDITIONS = %w[unscheduled overcapacity staged unknown unhealthy healthy]
+  DEFAULT_CHECK_CONFIG = <<~CONFIG
+    {
+      "_": {"ttl": 70},
+      "status":{
+        "running":   {"status": 0},
+        "delayed":   {"status": 1},
+        "deploying": {"status": 1},
+        "suspended": {"status": 1},
+        "waiting":   {"status": 1}
+      },
+      "health":{
+        "healthy":      {"status": 0},
+        "overcapacity": {"status": 1},
+        "staged":       {"status": 1},
+        "unhealthy":    {"status": 2},
+        "unscheduled":  {"status": 2},
+        "unknown":      {"status": 0}
+      }
+    }
+  CONFIG
+
   check_name 'CheckMarathonApps'
+  banner <<~BANNER
+  Usage: ./check-marathon-apps.rb (options)
+
+  This check will always return OK and publish two check results (health and status) per Marathon app.
+  Marathon applications can override default_check_config by using labels as described below.
+
+  Some example labels that can be used in Marathon application manifests:
+
+  # Publish '"aggregate": "component"' field in the check results for all health and status checks.
+  - SENSU_MARATHON_AGGREGATE=component
+  # similar for some other fields
+  - SENSU_MARATHON_CONTACT=support
+
+  # Publish '"aggregate": "component"' field in the check results only for status checks.
+  - SENSU_MARATHON_STATUS_AGGREGATE=component
+  # Don't handle status check results
+  - SENSU_MARATHON_STATUS_HANDLE=false
+
+  # Generate UNKNOWN result for unknown health status, rather then the default OK result
+  - SENSU_MARATHON_HEALTH_UNKNOWN_STATUS=3
+
+  Similar logic could be applied for the provided default_check_config. Values
+  under the special '_' key will be used as a default value for deeper levels.
+
+  Here is the default value for default_check_config:
+  #{DEFAULT_CHECK_CONFIG}
+
+  Options:
+  BANNER
 
   option :url,
     description: 'Marathon API URL',
@@ -109,12 +162,10 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
 
   option :default_check_config,
     long: '--default-check-config "{"status":{"running":{"valid":"json"}},"health":{"healthy":{"valid":"json"}}}"',
-    default: '{"status":{"delayed":{"status": 1},"waiting":{"status": 1},"suspended":{"status": 1},"deploying":{"status": 1},'\
-    '"running":{"status": 0}},"health":{"unscheduled":{"status": 2},"overcapacity":{"status": 1},'\
-    '"unknown":{"status": 3},"staged":{"status": 1},"unhealthy":{"status": 2},"healthy":{"status": 0}}}',
+    default: DEFAULT_CHECK_CONFIG,
     required: false,
-    description: 'Default values to be used while creating the check results, it can also be retrieved from the Marathon app labels definition.'\
-    'Example: SENSU_MARATHON_STATUS_RUNNING_STATUS=0 SENSU_MARATHON_HEALTH_HEALTHY_STATUS=0'
+    description: 'Default values to be used while creating the check results, '\
+      'can be overridden in a per-marathon application config via Marathon labels.'
 
   option :sensu_client_url,
     description: 'Sensu client HTTP URL socket',
@@ -157,7 +208,7 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
       # Parse Marathon app labels
       labels_config = parse_app_labels(app['labels'].to_h)
 
-      %w[health status].each do |reference|
+      REFERENCES.each do |reference|
         # / is and invalid character
         check_result['name'] = "check_marathon_app#{app['id'].tr('/', '_')}_#{reference}"
 
@@ -169,9 +220,13 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
                     end
 
         # Merge user provided check config
+        check_result.merge!(check_config.dig('_').to_h)
+        check_result.merge!(check_config.dig(reference, '_').to_h)
         check_result.merge!(check_config.dig(reference, condition).to_h)
 
         # Merge Marathon parsed check config
+        check_result.merge!(labels_config.dig('_').to_h)
+        check_result.merge!(labels_config.dig(reference, '_').to_h)
         check_result.merge!(labels_config.dig(reference, condition).to_h)
 
         # Build check result output
@@ -266,11 +321,29 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
       # Downcase
       config_keys.map!(&:downcase)
 
+      reference = config_keys.shift if REFERENCES.include? config_keys[0]
+      if (reference == 'health' && HEALTH_CONDITIONS.include?(config_keys[0])) ||
+         (reference == 'status' && STATUS_CONDITIONS.include?(config_keys[0]))
+        condition = config_keys.shift
+      end
+      key = config_keys.join(' ')
+
       # Add nested keys and value
-      config[config_keys[0]] = {} unless config[config_keys[0]]
-      config[config_keys[0]][config_keys[1]] = {} unless config[config_keys[0]][config_keys[1]]
-      config[config_keys[0]][config_keys[1]][config_keys[2]] = value
+      if !reference
+        config['_'] ||= {}
+        config['_'][key] = value
+	next
+      end
+      config[reference] ||= {}
+      if !condition
+        config[reference]['_'] ||= {}
+        config[reference]['_'][key] = value
+        next
+      end
+      config[reference][condition] ||= {}
+      config[reference][condition][key] = value
     end
+    config
   end
 
   def get_marathon_app_status(app, app_queue)

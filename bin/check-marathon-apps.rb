@@ -1,5 +1,4 @@
-#!/opt/sensu/embedded/bin/ruby
-#!/usr/bin/env ruby
+#! /usr/bin/env ruby
 #
 #   check-marathon-apps
 #
@@ -68,116 +67,116 @@ require 'json'
 # }
 #
 class MarathonAppsCheck < Sensu::Plugin::Check::CLI
-  REFERENCES = %w[health status]
-  STATUS_CONDITIONS = %w[waiting delayed suspended deploying running]
-  HEALTH_CONDITIONS = %w[unscheduled overcapacity staged unknown unhealthy healthy]
-  DEFAULT_CHECK_CONFIG = <<~CONFIG
-    {
-      "_": {"ttl": 70},
-      "status":{
-        "running":   {"status": 0},
-        "delayed":   {"status": 1},
-        "deploying": {"status": 1},
-        "suspended": {"status": 1},
-        "waiting":   {"status": 1}
-      },
-      "health":{
-        "healthy":      {"status": 0},
-        "overcapacity": {"status": 1},
-        "staged":       {"status": 1},
-        "unhealthy":    {"status": 2},
-        "unscheduled":  {"status": 2},
-        "unknown":      {"status": 0}
-      }
-    }
+  REFERENCES = %w(health status).freeze
+  STATUS_CONDITIONS = %w(waiting delayed suspended deploying running).freeze
+  HEALTH_CONDITIONS = %w(unscheduled overcapacity staged unknown unhealthy healthy).freeze
+  DEFAULT_CHECK_CONFIG = <<-CONFIG.gsub(/^\s+\|/, '').freeze
+    |{
+    |  "_": {"ttl": 70},
+    |  "status":{
+    |    "running":   {"status": 0},
+    |    "delayed":   {"status": 1},
+    |    "deploying": {"status": 1},
+    |    "suspended": {"status": 1},
+    |    "waiting":   {"status": 1}
+    |  },
+    |  "health":{
+    |    "healthy":      {"status": 0},
+    |    "overcapacity": {"status": 1},
+    |    "staged":       {"status": 1},
+    |    "unhealthy":    {"status": 2},
+    |    "unscheduled":  {"status": 2},
+    |    "unknown":      {"status": 0}
+    |  }
+    |}
   CONFIG
 
   check_name 'CheckMarathonApps'
-  banner <<~BANNER
-  Usage: ./check-marathon-apps.rb (options)
-
-  This check will always return OK and publish two check results (health and status) per Marathon app.
-  Marathon applications can override default_check_config by using labels as described below.
-
-  Some example labels that can be used in Marathon application manifests:
-
-  # Publish '"aggregate": "component"' field in the check results for all health and status checks.
-  - SENSU_MARATHON_AGGREGATE=component
-  # similar for some other fields
-  - SENSU_MARATHON_CONTACT=support
-
-  # Publish '"aggregate": "component"' field in the check results only for status checks.
-  - SENSU_MARATHON_STATUS_AGGREGATE=component
-  # Don't handle status check results
-  - SENSU_MARATHON_STATUS_HANDLE=false
-
-  # Generate UNKNOWN result for unknown health status, rather then the default OK result
-  - SENSU_MARATHON_HEALTH_UNKNOWN_STATUS=3
-
-  Similar logic could be applied for the provided default_check_config. Values
-  under the special '_' key will be used as a default value for deeper levels.
-
-  Here is the default value for default_check_config:
-  #{DEFAULT_CHECK_CONFIG}
-
-  Options:
+  banner <<-BANNER.gsub(/^\s+\|/, '')
+    |Usage: ./check-marathon-apps.rb (options)
+    |
+    |This check will always return OK and publish two check results (health and status) per Marathon app.
+    |Marathon applications can override default_check_config by using labels as described below.
+    |
+    |Some example labels that can be used in Marathon application manifests:
+    |
+    |# Publish '"aggregate": "component"' field in the check results for all health and status checks.
+    |- SENSU_MARATHON_AGGREGATE=component
+    |# similar for some other fields
+    |- SENSU_MARATHON_CONTACT=support
+    |
+    |# Publish '"aggregate": "component"' field in the check results only for status checks.
+    |- SENSU_MARATHON_STATUS_AGGREGATE=component
+    |# Don't handle status check results
+    |- SENSU_MARATHON_STATUS_HANDLE=false
+    |
+    |# Generate UNKNOWN result for unknown health status, rather then the default OK result
+    |- SENSU_MARATHON_HEALTH_UNKNOWN_STATUS=3
+    |
+    |Similar logic could be applied for the provided default_check_config. Values
+    |under the special '_' key will be used as a default value for deeper levels.
+    |
+    |Here is the default value for default_check_config:
+    |#{DEFAULT_CHECK_CONFIG}
+    |
+    |Options:
   BANNER
 
   option :url,
-    description: 'Marathon API URL',
-    short: '-u url',
-    long: '--url url',
-    default: 'http://localhost:8080'
+         description: 'Marathon API URL',
+         short: '-u url',
+         long: '--url url',
+         default: 'http://localhost:8080'
 
   option :username,
-    short: '-u USERNAME',
-    long: '--username USERNAME',
-    default: '',
-    required: false,
-    description: 'Marathon API username'
+         short: '-u USERNAME',
+         long: '--username USERNAME',
+         default: '',
+         required: false,
+         description: 'Marathon API username'
 
   option :password,
-    long: '--password PASSWORD',
-    default: '',
-    required: false,
-    description: 'Marathon API password'
+         long: '--password PASSWORD',
+         default: '',
+         required: false,
+         description: 'Marathon API password'
 
   option :match_pattern,
-    short: '-m PATTERN',
-    long: '--match-pattern PATTERN',
-    required: false,
-    description: 'Match app names against a pattern'
+         short: '-m PATTERN',
+         long: '--match-pattern PATTERN',
+         required: false,
+         description: 'Match app names against a pattern'
 
   option :exclude_pattern,
-    short: '-x PATTERN',
-    long: '--exclude-pattern PATTERN',
-    required: false,
-    description: 'Exclude apps that match a pattern'
+         short: '-x PATTERN',
+         long: '--exclude-pattern PATTERN',
+         required: false,
+         description: 'Exclude apps that match a pattern'
 
   option :marathon_keys,
-    long: '--marathon-keys KEY1,KEY2,KEY3',
-    default: 'id,version,versionInfo,tasksStaged,tasksRunning,tasksHealthy,tasksUnhealthy,lastTaskFailure',
-    required: false,
-    description: 'Keys retrieved from Marathon API that will be included in the output'
+         long: '--marathon-keys KEY1,KEY2,KEY3',
+         default: 'id,version,versionInfo,tasksStaged,tasksRunning,tasksHealthy,tasksUnhealthy,lastTaskFailure',
+         required: false,
+         description: 'Keys retrieved from Marathon API that will be included in the output'
 
   option :default_check_config,
-    long: '--default-check-config "{"status":{"running":{"valid":"json"}},"health":{"healthy":{"valid":"json"}}}"',
-    default: DEFAULT_CHECK_CONFIG,
-    required: false,
-    description: 'Default values to be used while creating the check results, '\
-      'can be overridden in a per-marathon application config via Marathon labels.'
+         long: '--default-check-config "{"status":{"running":{"valid":"json"}},"health":{"healthy":{"valid":"json"}}}"',
+         default: DEFAULT_CHECK_CONFIG,
+         required: false,
+         description: 'Default values to be used while creating the check results, '\
+                      'can be overridden in a per-marathon application config via Marathon labels.'
 
   option :sensu_client_url,
-    description: 'Sensu client HTTP URL socket',
-    long: '--sensu-client-url url',
-    default: 'http://localhost:3031'
+         description: 'Sensu client HTTP URL socket',
+         long: '--sensu-client-url url',
+         default: 'http://localhost:3031'
 
   option :timeout,
-    description: 'timeout in seconds',
-    short: '-T TIMEOUT',
-    long: '--timeout TIMEOUT',
-    proc: proc(&:to_i),
-    default: 5
+         description: 'timeout in seconds',
+         short: '-T TIMEOUT',
+         long: '--timeout TIMEOUT',
+         proc: proc(&:to_i),
+         default: 5
 
   def run
     if !config[:username].nil? && config[:password].nil? || config[:username].nil? && !config[:password].nil?
@@ -261,13 +260,13 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
     # https://sensuapp.org/docs/latest/reference/checks.html#example-check-definition
     # https://sensuapp.org/docs/latest/reference/checks.html#check-result-specification
     check_result.each do |k, v|
-      if %w[publish standalone auto_resolve force_resolve handle truncate_output].include?(k)
+      if %w(publish standalone auto_resolve force_resolve handle truncate_output).include?(k)
         # Boolean
         check_result[k] = v.to_s.eql?('true')
-      elsif %w[status interval issued executed timeout ttl ttl_status low_flap_threshold high_flap_threshold truncate_output_length].include?(k)
+      elsif %w(status interval issued executed timeout ttl ttl_status low_flap_threshold high_flap_threshold truncate_output_length).include?(k)
         # Integer
         check_result[k] = Integer(v)
-      elsif %w[subscribers handlers aggregates].include?(k)
+      elsif %w(subscribers handlers aggregates).include?(k)
         # Array
         check_result[k] = Array(v.split(','))
       end
@@ -329,13 +328,13 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
       key = config_keys.join(' ')
 
       # Add nested keys and value
-      if !reference
+      unless reference
         config['_'] ||= {}
         config['_'][key] = value
-	next
+        next
       end
       config[reference] ||= {}
-      if !condition
+      unless condition
         config[reference]['_'] ||= {}
         config[reference]['_'][key] = value
         next

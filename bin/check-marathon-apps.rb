@@ -68,8 +68,9 @@ require 'json'
 #
 class MarathonAppsCheck < Sensu::Plugin::Check::CLI
   REFERENCES = %w(health status).freeze
-  STATUS_CONDITIONS = %w(waiting delayed suspended deploying running).freeze
-  HEALTH_CONDITIONS = %w(unscheduled overcapacity staged unknown unhealthy healthy).freeze
+  STATUS_STATES = %w(waiting delayed suspended deploying running).freeze
+  HEALTH_STATES = %w(unscheduled overcapacity staged unknown unhealthy healthy).freeze
+  APPS_EMBED_RESOURCES = %w(apps.task apps.count apps.deployments apps.lastTaskFailure apps.failures apps.taskStats).freeze
   DEFAULT_CHECK_CONFIG = <<-CONFIG.gsub(/^\s+\|/, '').freeze
     |{
     |  "_": {"ttl": 70},
@@ -131,13 +132,13 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
   option :username,
          short: '-u USERNAME',
          long: '--username USERNAME',
-         default: '',
+         default: nil,
          required: false,
          description: 'Marathon API username'
 
   option :password,
          long: '--password PASSWORD',
-         default: '',
+         default: nil,
          required: false,
          description: 'Marathon API password'
 
@@ -145,13 +146,13 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
          short: '-m PATTERN',
          long: '--match-pattern PATTERN',
          required: false,
-         description: 'Match app names against a pattern'
+         description: 'Match app names against a pattern, exlude pattern takes precedence if both provided'
 
   option :exclude_pattern,
          short: '-x PATTERN',
          long: '--exclude-pattern PATTERN',
          required: false,
-         description: 'Exclude apps that match a pattern'
+         description: 'Exclude apps that match a pattern, takes precedence over match pattern'
 
   option :marathon_keys,
          long: '--marathon-keys KEY1,KEY2,KEY3',
@@ -193,7 +194,7 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
     check_config = parse_json(config[:default_check_config])
     # check_config.merge!(settings['marathon_app']['config'])
 
-    # Filter apps
+    # Filter apps, if both exists exclude pattern will override match pattern
     apps.keep_if { |app| app['id'][/#{config[:match_pattern]}/] } if config[:match_pattern]
     apps.delete_if { |app| app['id'][/#{config[:exclude_pat]}/] } if config[:exclude_pat]
 
@@ -211,25 +212,25 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
         # / is and invalid character
         check_result['name'] = "check_marathon_app#{app['id'].tr('/', '_')}_#{reference}"
 
-        condition = case reference
-                    when 'health'
-                      get_marathon_app_health(app)
-                    when 'status'
-                      get_marathon_app_status(app, app_queue.to_h)
-                    end
+        state = case reference
+                when 'health'
+                  get_marathon_app_health(app)
+                when 'status'
+                  get_marathon_app_status(app, app_queue.to_h)
+                end
 
         # Merge user provided check config
         check_result.merge!(check_config.dig('_').to_h)
         check_result.merge!(check_config.dig(reference, '_').to_h)
-        check_result.merge!(check_config.dig(reference, condition).to_h)
+        check_result.merge!(check_config.dig(reference, state).to_h)
 
         # Merge Marathon parsed check config
         check_result.merge!(labels_config.dig('_').to_h)
         check_result.merge!(labels_config.dig(reference, '_').to_h)
-        check_result.merge!(labels_config.dig(reference, condition).to_h)
+        check_result.merge!(labels_config.dig(reference, state).to_h)
 
         # Build check result output
-        check_result['output'] = "#{reference.upcase} #{condition.capitalize} - "\
+        check_result['output'] = "#{reference.upcase} #{state.capitalize} - "\
           "tasksRunning(#{app['tasksRunning'].to_i}), tasksStaged(#{app['tasksStaged'].to_i}), "\
           "tasksHealthy(#{app['tasksHealthy'].to_i}), tasksUnhealthy(#{app['tasksUnhealthy'].to_i})"
 
@@ -285,8 +286,8 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
 
   def fetch_apps
     # http://mesosphere.github.io/marathon/api-console/index.html
-    parse_json(get('/v2/apps?embed=apps.tasks&embed=apps.count&embed=apps.deployments'\
-                   '&embed=apps.lastTaskFailure&embed=apps.failures&embed=apps.taskStats'))['apps']
+    resources_query = APPS_EMBED_RESOURCES.map { |resource| "embed=#{resource}" }.join('&')
+    parse_json(get("/v2/apps?#{resources_query}"))['apps']
   end
 
   def fetch_queue
@@ -321,9 +322,9 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
       config_keys.map!(&:downcase)
 
       reference = config_keys.shift if REFERENCES.include? config_keys[0]
-      if (reference == 'health' && HEALTH_CONDITIONS.include?(config_keys[0])) ||
-         (reference == 'status' && STATUS_CONDITIONS.include?(config_keys[0]))
-        condition = config_keys.shift
+      if (reference == 'health' && HEALTH_STATES.include?(config_keys[0])) ||
+         (reference == 'status' && STATUS_STATES.include?(config_keys[0]))
+        state = config_keys.shift
       end
       key = config_keys.join(' ')
 
@@ -334,13 +335,13 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
         next
       end
       config[reference] ||= {}
-      unless condition
+      unless state
         config[reference]['_'] ||= {}
         config[reference]['_'][key] = value
         next
       end
-      config[reference][condition] ||= {}
-      config[reference][condition][key] = value
+      config[reference][state] ||= {}
+      config[reference][state][key] = value
     end
     config
   end

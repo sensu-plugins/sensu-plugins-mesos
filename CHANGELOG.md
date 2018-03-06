@@ -5,6 +5,9 @@ This CHANGELOG follows the format listed at [Keep A Changelog](http://keepachang
 
 ## [Unreleased]
 
+### Added
+- testing skeleton for `test-kitchen`, `kitchen-docker`, and `serverspec` (@majormoses)
+
 ## [2.2.2] - 2017-12-05
 ### Fixed
 - metrics-marathon.rb: ignore 2 new keys (start, end) in Marathon 1.5 /metrics endpoint (@bergerx)

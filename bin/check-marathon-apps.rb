@@ -162,10 +162,15 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
 
   option :default_check_config,
          long: '--default-check-config "{"status":{"running":{"valid":"json"}},"health":{"healthy":{"valid":"json"}}}"',
-         default: DEFAULT_CHECK_CONFIG,
          required: false,
          description: 'Default values to be used while creating the check results, '\
                       'can be overridden in a per-marathon application config via Marathon labels.'
+
+  option :default_check_config_file,
+         long: '--default-check-config-file CONFIG_FILE',
+         required: false,
+         description: 'Similar to `--default-check-config` but read from given file. If both parameters are provided  '\
+                      '`--default-check-config` will override this one.'
 
   option :sensu_client_url,
          description: 'Sensu client HTTP URL socket',
@@ -190,9 +195,15 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
     # Get Marathon API queue
     queue = fetch_queue
 
-    # Parse default check config
-    check_config = parse_json(config[:default_check_config])
-    # check_config.merge!(settings['marathon_app']['config'])
+    # Get and parse default check config
+    check_config_str = if !config[:default_check_config].nil?
+                         config[:default_check_config]
+                       elsif !config[:default_check_config_file].nil?
+                         File.read(config[:default_check_config_file])
+                       else
+                         DEFAULT_CHECK_CONFIG
+                       end
+    check_config = parse_json(check_config_str)
 
     # Filter apps, if both exists exclude pattern will override match pattern
     apps.keep_if { |app| app['id'][/#{config[:match_pattern]}/] } if config[:match_pattern]
@@ -296,7 +307,10 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
   end
 
   def post_check_result(data)
-    RestClient.post("#{config[:sensu_client_url]}/results", data.to_json, content_type: 'application/json', timeout: config[:timeout])
+    RestClient.post("#{config[:sensu_client_url]}/results",
+                    data.to_json,
+                    content_type: 'application/json',
+                    timeout: config[:timeout])
   rescue RestClient::ExceptionWithResponse => e
     critical "Error while trying to POST check result (#{config[:sensu_client_url]}/results): #{e.response}"
   end

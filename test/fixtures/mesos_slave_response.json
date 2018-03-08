@@ -1,0 +1,83 @@
+{
+  "slaves": [
+    {
+      "id": "11c27d89-4935-4347-a4c2-23324e69e314-S11",
+      "hostname": "10.0.3.76",
+      "port": 5051,
+      "attributes": {},
+      "pid": "slave(1)@10.0.3.76:5051",
+      "registered_time": 1493725119.87166,
+      "resources": {
+        "disk": 102084,
+        "mem": 6037,
+        "gpus": 2,
+        "cpus": 4,
+        "ports": "[1025-2180, 2182-3887, 3889-5049, 5052-8079, 8082-8180, 8182-32000]"
+      },
+      "used_resources": {
+        "disk": 1000,
+        "mem": 2048,
+        "gpus": 1,
+        "cpus": 1,
+        "ports": "[1025-1026]"
+      },
+      "offered_resources": {
+        "disk": 0,
+        "mem": 0,
+        "gpus": 0,
+        "cpus": 0
+      },
+      "reserved_resources": {
+        "elastic-role": {
+          "disk": 1000,
+          "mem": 2048,
+          "gpus": 0,
+          "cpus": 1,
+          "ports": "[1025-1026]"
+        }
+      },
+      "unreserved_resources": {
+        "disk": 101084,
+        "mem": 3989,
+        "gpus": 0,
+        "cpus": 3,
+        "ports": "[1027-2180, 2182-3887, 3889-5049, 5052-8079, 8082-8180, 8182-32000]"
+      },
+      "active": true,
+      "version": "1.2.1",
+      "offered_resources_full": []
+    },
+    {
+      "id": "11c27d89-4935-4347-a4c2-23324e69e314-S10",
+      "hostname": "10.0.3.248",
+      "port": 5051,
+      "attributes": {},
+      "pid": "slave(1)@10.0.3.248:5051",
+      "registered_time": 1493725100.24233,
+      "resources": {
+        "disk": 102084,
+        "mem": 6037,
+        "gpus": 2,
+        "cpus": 4,
+        "ports": "[1025-2180, 2182-3887, 3889-5049, 5052-8079, 8082-8180, 8182-32000]"
+      },
+      "used_resources": {
+        "disk": 2000,
+        "mem": 5144,
+        "gpus": 0,
+        "cpus": 1.5,
+        "ports": "[1025-1025, 9300-9300, 10101-10101]"
+      },
+      "offered_resources": {
+        "disk": 0,
+        "mem": 0,
+        "gpus": 0,
+        "cpus": 0
+      },
+      "active": true,
+      "version": "1.2.1",
+      "offered_resources_full": []
+    }
+  ],
+  "recovered_slaves": []
+}

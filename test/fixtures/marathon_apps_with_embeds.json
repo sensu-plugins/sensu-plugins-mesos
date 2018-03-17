@@ -1,0 +1,593 @@
+[
+  {
+    "id": "/sensu-test",
+    "backoffFactor": 1.15,
+    "backoffSeconds": 1,
+    "cmd": "sleep 1d",
+    "container": {
+      "type": "MESOS",
+      "volumes": []
+    },
+    "cpus": 0.1,
+    "disk": 0,
+    "executor": "",
+    "instances": 1,
+    "labels": {
+      "SENSU_MARATHON_HEALTH_AGGREGATE": "health_aggregate",
+      "hede": "hodo",
+      "SENSU_MARATHON_AGGREGATE": "test"
+    },
+    "maxLaunchDelaySeconds": 3600,
+    "mem": 128,
+    "gpus": 0,
+    "networks": [
+      {
+        "mode": "host"
+      }
+    ],
+    "portDefinitions": [],
+    "requirePorts": false,
+    "upgradeStrategy": {
+      "maximumOverCapacity": 1,
+      "minimumHealthCapacity": 1
+    },
+    "version": "2018-03-01T15:01:29.329Z",
+    "versionInfo": {
+      "lastScalingAt": "2018-03-01T15:01:29.329Z",
+      "lastConfigChangeAt": "2018-03-01T15:01:29.329Z"
+    },
+    "killSelection": "YOUNGEST_FIRST",
+    "unreachableStrategy": {
+      "inactiveAfterSeconds": 0,
+      "expungeAfterSeconds": 0
+    },
+    "tasksStaged": 0,
+    "tasksRunning": 1,
+    "tasksHealthy": 0,
+    "tasksUnhealthy": 0,
+    "deployments": [],
+    "tasks": [
+      {
+        "ipAddresses": [
+          {
+            "ipAddress": "10.0.7.74",
+            "protocol": "IPv4"
+          }
+        ],
+        "stagedAt": "2018-03-08T15:01:43.169Z",
+        "state": "TASK_RUNNING",
+        "ports": [],
+        "startedAt": "2018-03-08T15:01:43.604Z",
+        "version": "2018-03-01T15:01:29.329Z",
+        "id": "sensu-test.9cfe2f3f-22e1-11e8-9b54-70b3d5800003",
+        "appId": "/sensu-test",
+        "slaveId": "a127c67e-a091-43fb-99cd-5d062428c62a-S2",
+        "host": "10.0.7.74"
+      }
+    ],
+    "taskStats": {
+      "startedAfterLastScaling": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 0,
+            "unhealthy": 0
+          },
+          "lifeTime": {
+            "averageSeconds": 1323.737,
+            "medianSeconds": 1323.737
+          }
+        }
+      },
+      "withLatestConfig": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 0,
+            "unhealthy": 0
+          },
+          "lifeTime": {
+            "averageSeconds": 1323.737,
+            "medianSeconds": 1323.737
+          }
+        }
+      },
+      "totalSummary": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 0,
+            "unhealthy": 0
+          },
+          "lifeTime": {
+            "averageSeconds": 1323.737,
+            "medianSeconds": 1323.737
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "/sensu-test-running-healthy",
+    "backoffFactor": 1.15,
+    "backoffSeconds": 1,
+    "cmd": "sleep 1d",
+    "container": {
+      "type": "MESOS",
+      "volumes": []
+    },
+    "cpus": 0.1,
+    "disk": 0,
+    "executor": "",
+    "healthChecks": [
+      {
+        "command": {
+          "value": ":"
+        },
+        "gracePeriodSeconds": 300,
+        "intervalSeconds": 60,
+        "maxConsecutiveFailures": 3,
+        "protocol": "COMMAND",
+        "timeoutSeconds": 20,
+        "delaySeconds": 15
+      }
+    ],
+    "instances": 1,
+    "labels": {},
+    "maxLaunchDelaySeconds": 3600,
+    "mem": 128,
+    "gpus": 0,
+    "networks": [
+      {
+        "mode": "host"
+      }
+    ],
+    "portDefinitions": [],
+    "requirePorts": false,
+    "upgradeStrategy": {
+      "maximumOverCapacity": 1,
+      "minimumHealthCapacity": 1
+    },
+    "version": "2018-03-08T15:20:59.89Z",
+    "versionInfo": {
+      "lastScalingAt": "2018-03-08T15:20:59.89Z",
+      "lastConfigChangeAt": "2018-03-08T15:20:59.89Z"
+    },
+    "killSelection": "YOUNGEST_FIRST",
+    "unreachableStrategy": {
+      "inactiveAfterSeconds": 0,
+      "expungeAfterSeconds": 0
+    },
+    "tasksStaged": 0,
+    "tasksRunning": 1,
+    "tasksHealthy": 1,
+    "tasksUnhealthy": 0,
+    "deployments": [],
+    "tasks": [
+      {
+        "ipAddresses": [
+          {
+            "ipAddress": "10.0.7.162",
+            "protocol": "IPv4"
+          }
+        ],
+        "stagedAt": "2018-03-08T15:20:59.986Z",
+        "state": "TASK_RUNNING",
+        "ports": [],
+        "startedAt": "2018-03-08T15:21:00.421Z",
+        "version": "2018-03-08T15:20:59.890Z",
+        "id": "sensu-test-running-healthy.4e827356-22e4-11e8-9b54-70b3d5800003",
+        "appId": "/sensu-test-running-healthy",
+        "slaveId": "4c5cca36-8774-429e-a912-eaaad2765219-S3",
+        "host": "10.0.7.162",
+        "healthCheckResults": [
+          {
+            "alive": true,
+            "consecutiveFailures": 0,
+            "firstSuccess": "2018-03-08T15:21:15.457Z",
+            "lastFailure": null,
+            "lastSuccess": "2018-03-08T15:21:15.457Z",
+            "lastFailureCause": null,
+            "instanceId": "sensu-test-running-healthy.marathon-4e827356-22e4-11e8-9b54-70b3d5800003"
+          }
+        ]
+      }
+    ],
+    "taskStats": {
+      "startedAfterLastScaling": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 1,
+            "unhealthy": 0
+          },
+          "lifeTime": {
+            "averageSeconds": 166.922,
+            "medianSeconds": 166.922
+          }
+        }
+      },
+      "withLatestConfig": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 1,
+            "unhealthy": 0
+          },
+          "lifeTime": {
+            "averageSeconds": 166.922,
+            "medianSeconds": 166.922
+          }
+        }
+      },
+      "totalSummary": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 1,
+            "unhealthy": 0
+          },
+          "lifeTime": {
+            "averageSeconds": 166.922,
+            "medianSeconds": 166.922
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "/sensu-test-unhealthy",
+    "backoffFactor": 1.15,
+    "backoffSeconds": 1,
+    "cmd": "bash -c 'trap \"echo resisting to be killed\" SIGINT SIGTERM; while echo \"running\"; do sleep 5m; done'",
+    "container": {
+      "type": "MESOS",
+      "volumes": []
+    },
+    "cpus": 0.1,
+    "disk": 0,
+    "executor": "",
+    "healthChecks": [
+      {
+        "command": {
+          "value": "failing-health-command"
+        },
+        "gracePeriodSeconds": 1,
+        "intervalSeconds": 60,
+        "maxConsecutiveFailures": 100000,
+        "protocol": "COMMAND",
+        "timeoutSeconds": 20,
+        "delaySeconds": 15
+      }
+    ],
+    "instances": 1,
+    "labels": {},
+    "maxLaunchDelaySeconds": 3600,
+    "mem": 128,
+    "gpus": 0,
+    "networks": [
+      {
+        "mode": "host"
+      }
+    ],
+    "portDefinitions": [],
+    "requirePorts": false,
+    "upgradeStrategy": {
+      "maximumOverCapacity": 1,
+      "minimumHealthCapacity": 1
+    },
+    "version": "2018-03-08T15:10:41.744Z",
+    "versionInfo": {
+      "lastScalingAt": "2018-03-08T15:10:41.744Z",
+      "lastConfigChangeAt": "2018-03-08T15:09:06.45Z"
+    },
+    "killSelection": "YOUNGEST_FIRST",
+    "unreachableStrategy": {
+      "inactiveAfterSeconds": 0,
+      "expungeAfterSeconds": 0
+    },
+    "tasksStaged": 0,
+    "tasksRunning": 1,
+    "tasksHealthy": 0,
+    "tasksUnhealthy": 1,
+    "deployments": [],
+    "tasks": [
+      {
+        "ipAddresses": [
+          {
+            "ipAddress": "10.0.7.159",
+            "protocol": "IPv4"
+          }
+        ],
+        "stagedAt": "2018-03-08T15:09:07.343Z",
+        "state": "TASK_RUNNING",
+        "ports": [],
+        "startedAt": "2018-03-08T15:09:08.423Z",
+        "version": "2018-03-08T15:09:06.450Z",
+        "id": "sensu-test-unhealthy.a5bdc223-22e2-11e8-9b54-70b3d5800003",
+        "appId": "/sensu-test-unhealthy",
+        "slaveId": "4c5cca36-8774-429e-a912-eaaad2765219-S2",
+        "host": "10.0.7.159",
+        "healthCheckResults": [
+          {
+            "alive": false,
+            "consecutiveFailures": 0,
+            "firstSuccess": null,
+            "lastFailure": null,
+            "lastSuccess": null,
+            "lastFailureCause": null,
+            "instanceId": "sensu-test-unhealthy.marathon-a5bdc223-22e2-11e8-9b54-70b3d5800003"
+          }
+        ]
+      }
+    ],
+    "taskStats": {
+      "withLatestConfig": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 0,
+            "unhealthy": 1
+          },
+          "lifeTime": {
+            "averageSeconds": 878.92,
+            "medianSeconds": 878.92
+          }
+        }
+      },
+      "totalSummary": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 0,
+            "unhealthy": 1
+          },
+          "lifeTime": {
+            "averageSeconds": 878.92,
+            "medianSeconds": 878.92
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "/sensu-test-suspended",
+    "backoffFactor": 1.15,
+    "backoffSeconds": 1,
+    "cmd": "sleep 1",
+    "container": {
+      "type": "DOCKER",
+      "docker": {
+        "forcePullImage": false,
+        "image": "alpine",
+        "parameters": [],
+        "privileged": false
+      },
+      "volumes": []
+    },
+    "cpus": 0.1,
+    "disk": 0,
+    "executor": "",
+    "instances": 0,
+    "labels": {},
+    "maxLaunchDelaySeconds": 3600,
+    "mem": 128,
+    "gpus": 0,
+    "networks": [
+      {
+        "mode": "host"
+      }
+    ],
+    "portDefinitions": [],
+    "requirePorts": false,
+    "upgradeStrategy": {
+      "maximumOverCapacity": 1,
+      "minimumHealthCapacity": 1
+    },
+    "version": "2018-03-08T14:34:55.123Z",
+    "versionInfo": {
+      "lastScalingAt": "2018-03-08T14:34:55.123Z",
+      "lastConfigChangeAt": "2018-03-08T14:34:55.123Z"
+    },
+    "killSelection": "YOUNGEST_FIRST",
+    "unreachableStrategy": {
+      "inactiveAfterSeconds": 0,
+      "expungeAfterSeconds": 0
+    },
+    "tasksStaged": 0,
+    "tasksRunning": 0,
+    "tasksHealthy": 0,
+    "tasksUnhealthy": 0,
+    "deployments": [],
+    "tasks": [],
+    "taskStats": {}
+  },
+  {
+    "id": "/sensu-test-deploying",
+    "backoffFactor": 1.15,
+    "backoffSeconds": 1,
+    "cmd": "bash -c 'trap \"echo resisting to be killed\" SIGINT SIGTERM; while echo \"running\"; do sleep 5m; done'",
+    "container": {
+      "type": "MESOS",
+      "volumes": []
+    },
+    "cpus": 0.1,
+    "disk": 0,
+    "executor": "",
+    "healthChecks": [
+      {
+        "command": {
+          "value": "failing-health-command"
+        },
+        "gracePeriodSeconds": 1000000000,
+        "intervalSeconds": 60,
+        "maxConsecutiveFailures": 100000,
+        "protocol": "COMMAND",
+        "timeoutSeconds": 20,
+        "delaySeconds": 15
+      }
+    ],
+    "instances": 1,
+    "labels": {},
+    "maxLaunchDelaySeconds": 3600,
+    "mem": 128,
+    "gpus": 0,
+    "networks": [
+      {
+        "mode": "host"
+      }
+    ],
+    "portDefinitions": [],
+    "requirePorts": false,
+    "upgradeStrategy": {
+      "maximumOverCapacity": 1,
+      "minimumHealthCapacity": 1
+    },
+    "version": "2018-03-08T15:11:40.436Z",
+    "versionInfo": {
+      "lastScalingAt": "2018-03-08T15:11:40.436Z",
+      "lastConfigChangeAt": "2018-03-08T15:11:40.436Z"
+    },
+    "killSelection": "YOUNGEST_FIRST",
+    "unreachableStrategy": {
+      "inactiveAfterSeconds": 0,
+      "expungeAfterSeconds": 0
+    },
+    "tasksStaged": 0,
+    "tasksRunning": 1,
+    "tasksHealthy": 0,
+    "tasksUnhealthy": 0,
+    "deployments": [
+      {
+        "id": "35789e22-ba42-45ba-8158-3990203715b4"
+      }
+    ],
+    "tasks": [
+      {
+        "ipAddresses": [
+          {
+            "ipAddress": "10.0.7.134",
+            "protocol": "IPv4"
+          }
+        ],
+        "stagedAt": "2018-03-08T15:11:40.525Z",
+        "state": "TASK_RUNNING",
+        "ports": [],
+        "startedAt": "2018-03-08T15:11:41.153Z",
+        "version": "2018-03-08T15:11:40.436Z",
+        "id": "sensu-test-deploying.010b7a05-22e3-11e8-9b54-70b3d5800003",
+        "appId": "/sensu-test-deploying",
+        "slaveId": "4c5cca36-8774-429e-a912-eaaad2765219-S0",
+        "host": "10.0.7.134"
+      }
+    ],
+    "taskStats": {
+      "startedAfterLastScaling": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 0,
+            "unhealthy": 0
+          },
+          "lifeTime": {
+            "averageSeconds": 726.193,
+            "medianSeconds": 726.193
+          }
+        }
+      },
+      "withLatestConfig": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 0,
+            "unhealthy": 0
+          },
+          "lifeTime": {
+            "averageSeconds": 726.193,
+            "medianSeconds": 726.193
+          }
+        }
+      },
+      "totalSummary": {
+        "stats": {
+          "counts": {
+            "staged": 0,
+            "running": 1,
+            "healthy": 0,
+            "unhealthy": 0
+          },
+          "lifeTime": {
+            "averageSeconds": 726.193,
+            "medianSeconds": 726.193
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "/sensu-test-delayed",
+    "backoffFactor": 10,
+    "backoffSeconds": 10,
+    "cmd": "fail-fast",
+    "container": {
+      "type": "MESOS",
+      "volumes": []
+    },
+    "cpus": 0.1,
+    "disk": 0,
+    "executor": "",
+    "instances": 1,
+    "labels": {},
+    "maxLaunchDelaySeconds": 36000000,
+    "mem": 128,
+    "gpus": 0,
+    "networks": [
+      {
+        "mode": "host"
+      }
+    ],
+    "portDefinitions": [],
+    "requirePorts": false,
+    "upgradeStrategy": {
+      "maximumOverCapacity": 1,
+      "minimumHealthCapacity": 1
+    },
+    "version": "2018-03-08T14:47:25.3Z",
+    "versionInfo": {
+      "lastScalingAt": "2018-03-08T14:47:25.3Z",
+      "lastConfigChangeAt": "2018-03-08T14:47:25.3Z"
+    },
+    "killSelection": "YOUNGEST_FIRST",
+    "unreachableStrategy": {
+      "inactiveAfterSeconds": 0,
+      "expungeAfterSeconds": 0
+    },
+    "tasksStaged": 0,
+    "tasksRunning": 0,
+    "tasksHealthy": 0,
+    "tasksUnhealthy": 0,
+    "deployments": [],
+    "tasks": [],
+    "lastTaskFailure": {
+      "appId": "/sensu-test-delayed",
+      "host": "10.0.7.54",
+      "message": "Command exited with status 127",
+      "state": "TASK_FAILED",
+      "taskId": "sensu-test-delayed.39894200-22e2-11e8-9b54-70b3d5800003",
+      "timestamp": "2018-03-08T15:06:06.480Z",
+      "version": "2018-03-08T14:47:25.300Z",
+      "slaveId": "4c5cca36-8774-429e-a912-eaaad2765219-S1"
+    },
+    "taskStats": {}
+  }
+]

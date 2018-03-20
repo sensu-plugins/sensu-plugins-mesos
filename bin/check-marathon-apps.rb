@@ -3,7 +3,7 @@
 #   check-marathon-apps
 #
 # DESCRIPTION:
-#   This plugin creates checks results for each Marathon app that is running,
+#   This check script creates checks results for each Marathon app that is running,
 #   and reports the status of the app based on Marathon Application Status Reference.
 #   https://mesosphere.github.io/marathon/docs/marathon-ui.html#application-status-reference
 #
@@ -173,7 +173,7 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
                       '`--default-check-config` will override this one.'
 
   option :sensu_client_url,
-         description: 'Sensu client HTTP URL socket',
+         description: 'Sensu client HTTP URL',
          long: '--sensu-client-url url',
          default: 'http://localhost:3031'
 
@@ -246,7 +246,7 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
           "tasksHealthy(#{app['tasksHealthy'].to_i}), tasksUnhealthy(#{app['tasksUnhealthy'].to_i})"
 
         # Make sure that check result data types are correct
-        sanitize_check_result(check_result)
+        enforce_sensu_field_types(check_result)
 
         # Send the result to sensu-client HTTP socket
         post_check_result(check_result)
@@ -267,7 +267,7 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
     }
   end
 
-  def sanitize_check_result(check_result)
+  def enforce_sensu_field_types(check_result)
     # Force data types of different fields on the check result
     # https://sensuapp.org/docs/latest/reference/checks.html#example-check-definition
     # https://sensuapp.org/docs/latest/reference/checks.html#check-result-specification
@@ -285,7 +285,7 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
     end
   end
 
-  def get(path)
+  def rest_client(path)
     RestClient.get("#{config[:url]}#{path}",
                    user: config[:username],
                    password: config[:password],
@@ -298,12 +298,12 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
   def fetch_apps
     # http://mesosphere.github.io/marathon/api-console/index.html
     resources_query = APPS_EMBED_RESOURCES.map { |resource| "embed=#{resource}" }.join('&')
-    parse_json(get("/v2/apps?#{resources_query}"))['apps']
+    parse_json(rest_client("/v2/apps?#{resources_query}"))['apps']
   end
 
   def fetch_queue
     # http://mesosphere.github.io/marathon/api-console/index.html
-    parse_json(get('/v2/queue'))['queue']
+    parse_json(rest_client('/v2/queue'))['queue']
   end
 
   def post_check_result(data)

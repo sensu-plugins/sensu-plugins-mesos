@@ -38,7 +38,10 @@ another check result for the apps `status`.
 Check results can be customised by two ways:
 
 1. Default check result fields thats applied to all will be provided by a
-   default check config. Please see th esource code to see the whole defaults.
+   default check config. Please see the source code to see the whole defaults.
+   Since the whole default check config tends to be big, you can also use
+   `check-config-overrides` flag just to provide few new fields or override
+   existing defaults.
 2. Application owners can override check results by using marathon labels. This
    allows each application to have different fields in the published result.
    e.g. per app escalation or aggregate can be controlled by applying Marathon

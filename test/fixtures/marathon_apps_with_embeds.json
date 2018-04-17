@@ -589,5 +589,53 @@
       "slaveId": "4c5cca36-8774-429e-a912-eaaad2765219-S1"
     },
     "taskStats": {}
+  },
+  {
+    "id": "/non-sensu-compliant-test",
+    "backoffFactor": 10,
+    "backoffSeconds": 10,
+    "cmd": "sleep 1000000",
+    "container": {
+      "type": "MESOS",
+      "volumes": []
+    },
+    "cpus": 0.1,
+    "disk": 0,
+    "executor": "",
+    "instances": 1,
+    "labels": {
+      "MARATHON_SENSU_AGGREGATE": "aggregate with space is not valid for sensu"
+    },
+    "maxLaunchDelaySeconds": 36000000,
+    "mem": 128,
+    "gpus": 0,
+    "networks": [
+      {
+        "mode": "host"
+      }
+    ],
+    "portDefinitions": [],
+    "requirePorts": false,
+    "upgradeStrategy": {
+      "maximumOverCapacity": 1,
+      "minimumHealthCapacity": 1
+    },
+    "version": "2018-03-08T14:47:25.3Z",
+    "versionInfo": {
+      "lastScalingAt": "2018-03-08T14:47:25.3Z",
+      "lastConfigChangeAt": "2018-03-08T14:47:25.3Z"
+    },
+    "killSelection": "YOUNGEST_FIRST",
+    "unreachableStrategy": {
+      "inactiveAfterSeconds": 0,
+      "expungeAfterSeconds": 0
+    },
+    "tasksStaged": 0,
+    "tasksRunning": 0,
+    "tasksHealthy": 0,
+    "tasksUnhealthy": 0,
+    "deployments": [],
+    "tasks": [],
+    "taskStats": {}
   }
 ]

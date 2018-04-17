@@ -24,10 +24,19 @@ class MarathonAppsCheck
   end
 
   def post_check_result(res)
-    @check_results.push(res.dup)
+    # simulate failure from sensu agent, see the overridden method in MarathonAppsCheck
+    if res['name'] =~ /non-sensu-compliant-test/
+      false
+    else
+      @check_results.push(res.dup)
+      true
+    end
   end
 
-  def ok(*); end
+  def critical(*args)
+    @status = 'CRITICAL'
+    output(*args)
+  end
 end
 
 describe 'MarathonTaskCheck' do
@@ -43,7 +52,8 @@ describe 'MarathonTaskCheck' do
 
   describe '#run' do
     it 'tests multiple applications with different states' do
-      @check.run
+      expect { @check.run }.to output("CheckMarathonApps CRITICAL: 1 apps are failed to be reported to sensu\n").to_stdout
+
       expect(@check.check_results).to contain_hash_with_keys(
         'name' => 'check_marathon_app_sensu-test_health',
         'output' => 'HEALTH Unknown - tasksRunning(1), tasksStaged(0), tasksHealthy(0), tasksUnhealthy(0)',

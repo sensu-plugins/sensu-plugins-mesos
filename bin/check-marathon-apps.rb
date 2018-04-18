@@ -275,7 +275,11 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
       app_result = post_check_result(check_result)
 
       # mark if result cant be posted to sensu
-      app_result_pushed &&= app_result
+      app_result_pushed = if app_result_pushed && app_result
+                            true
+                          else
+                            false
+                          end
     end
     app_result_pushed
   end

@@ -33,6 +33,8 @@ class MarathonAppsCheck
     end
   end
 
+  def ok(*); end
+
   def critical(*args)
     @status = 'CRITICAL'
     output(*args)

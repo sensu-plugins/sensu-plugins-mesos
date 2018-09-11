@@ -172,6 +172,13 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
          description: 'Similar to `--default-check-config` but read from given file. If both parameters are provided  '\
                       '`--default-check-config` will override this one.'
 
+  option :check_config_overrides,
+         long: '--check-config-overrides CHECK_CONFIG_OVERRIDES',
+         description: 'Instead of providing whole default-check-config if you just want to introduce some new fields '\
+                      'to the check config without having to provide whole config, this will be merged to the '\
+                      'default-check-config.',
+         default: '{}'
+
   option :sensu_client_url,
          description: 'Sensu client HTTP URL',
          long: '--sensu-client-url url',
@@ -203,57 +210,78 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
                        else
                          DEFAULT_CHECK_CONFIG
                        end
-    check_config = parse_json(check_config_str)
+    default_check_config = parse_json(check_config_str)
+    check_config_overrides = parse_json(config[:check_config_overrides])
+    check_config = default_check_config.merge(check_config_overrides)
 
     # Filter apps, if both exists exclude pattern will override match pattern
     apps.keep_if { |app| app['id'][/#{config[:match_pattern]}/] } if config[:match_pattern]
     apps.delete_if { |app| app['id'][/#{config[:exclude_pat]}/] } if config[:exclude_pat]
 
+    failed_apps_to_be_reported = 0
     apps.each do |app|
-      # Select app queue if any
-      app_queue = queue.select { |q| q['app']['id'][/^#{app['id']}$/] }.to_a.first
-
-      # Build check result
-      check_result = check_result_scaffold(app)
-
-      # Parse Marathon app labels
-      labels_config = parse_app_labels(app['labels'].to_h)
-
-      REFERENCES.each do |reference|
-        # / is and invalid character
-        check_result['name'] = "check_marathon_app#{app['id'].tr('/', '_')}_#{reference}"
-
-        state = case reference
-                when 'health'
-                  get_marathon_app_health(app)
-                when 'status'
-                  get_marathon_app_status(app, app_queue.to_h)
-                end
-
-        # Merge user provided check config
-        check_result.merge!(check_config.dig('_').to_h)
-        check_result.merge!(check_config.dig(reference, '_').to_h)
-        check_result.merge!(check_config.dig(reference, state).to_h)
-
-        # Merge Marathon parsed check config
-        check_result.merge!(labels_config.dig('_').to_h)
-        check_result.merge!(labels_config.dig(reference, '_').to_h)
-        check_result.merge!(labels_config.dig(reference, state).to_h)
-
-        # Build check result output
-        check_result['output'] = "#{reference.upcase} #{state.capitalize} - "\
-          "tasksRunning(#{app['tasksRunning'].to_i}), tasksStaged(#{app['tasksStaged'].to_i}), "\
-          "tasksHealthy(#{app['tasksHealthy'].to_i}), tasksUnhealthy(#{app['tasksUnhealthy'].to_i})"
-
-        # Make sure that check result data types are correct
-        enforce_sensu_field_types(check_result)
-
-        # Send the result to sensu-client HTTP socket
-        post_check_result(check_result)
-      end
+      failed_apps_to_be_reported += 1 unless process_app_results(app, queue, check_config)
     end
 
-    ok 'Marathon Apps Status and Health check is running properly'
+    if failed_apps_to_be_reported > 0
+      critical "#{failed_apps_to_be_reported} apps are failed to be reported to sensu"
+    else
+      ok 'Marathon Apps Status and Health check is running properly'
+    end
+  end
+
+  def process_app_results(app, queue, check_config)
+    app_result_pushed = true
+
+    # Select app queue if any
+    app_queue = queue.select { |q| q['app']['id'][/^#{app['id']}$/] }.to_a.first
+
+    # Build check result
+    check_result = check_result_scaffold(app)
+
+    # Parse Marathon app labels
+    labels_config = parse_app_labels(app['labels'].to_h)
+
+    REFERENCES.each do |reference|
+      # / is and invalid character
+      check_result['name'] = "check_marathon_app#{app['id'].tr('/', '_')}_#{reference}"
+
+      state = case reference
+              when 'health'
+                get_marathon_app_health(app)
+              when 'status'
+                get_marathon_app_status(app, app_queue.to_h)
+              end
+
+      # Merge user provided check config
+      check_result.merge!(check_config.dig('_').to_h)
+      check_result.merge!(check_config.dig(reference, '_').to_h)
+      check_result.merge!(check_config.dig(reference, state).to_h)
+
+      # Merge Marathon parsed check config
+      check_result.merge!(labels_config.dig('_').to_h)
+      check_result.merge!(labels_config.dig(reference, '_').to_h)
+      check_result.merge!(labels_config.dig(reference, state).to_h)
+
+      # Build check result output
+      check_result['output'] = "#{reference.upcase} #{state.capitalize} - "\
+        "tasksRunning(#{app['tasksRunning'].to_i}), tasksStaged(#{app['tasksStaged'].to_i}), "\
+        "tasksHealthy(#{app['tasksHealthy'].to_i}), tasksUnhealthy(#{app['tasksUnhealthy'].to_i})"
+
+      # Make sure that check result data types are correct
+      enforce_sensu_field_types(check_result)
+
+      # Send the result to sensu-client HTTP socket
+      app_result = post_check_result(check_result)
+
+      # mark if result cant be posted to sensu
+      app_result_pushed = if app_result_pushed && app_result
+                            true
+                          else
+                            false
+                          end
+    end
+    app_result_pushed
   end
 
   def check_result_scaffold(app)
@@ -311,8 +339,11 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
                     data.to_json,
                     content_type: 'application/json',
                     timeout: config[:timeout])
+    true
   rescue RestClient::ExceptionWithResponse => e
-    critical "Error while trying to POST check result (#{config[:sensu_client_url]}/results): #{e.response}"
+    # print a message about failing POST but keep going
+    STDERR.puts "Error while trying to POST check result for #{data} (#{config[:sensu_client_url]}/results): #{e.response}"
+    false
   end
 
   def parse_json(json)

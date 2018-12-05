@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
   s.version                = SensuPluginsMesos::Version::VER_STRING
 
   s.add_runtime_dependency 'rest-client',  '2.0'
-  s.add_runtime_dependency 'sensu-plugin', '~> 1.2'
+  s.add_runtime_dependency 'sensu-plugin', '>= 1.2', '< 4.0'
   s.add_runtime_dependency 'daybreak', '0.3.0'
 
   s.add_development_dependency 'bundler',                   '~> 1.7'

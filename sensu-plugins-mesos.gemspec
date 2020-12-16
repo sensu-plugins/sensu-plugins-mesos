@@ -53,5 +53,5 @@ Gem::Specification.new do |s|
   # locked as 0.17 requires ruby 2.3+
   s.add_development_dependency 'test-kitchen',              '~> 1.16.0'
   s.add_development_dependency 'yard',                      '~> 0.8'
-  s.add_development_dependency 'json',                      '~> 1.8', '< 2.0'
+  s.add_development_dependency 'json',                      '~> 2.4', '< 3.0'
 end

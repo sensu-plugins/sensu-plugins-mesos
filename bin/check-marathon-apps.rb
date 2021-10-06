@@ -1,4 +1,6 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: false
+
 #
 #   check-marathon-apps
 #
@@ -67,10 +69,10 @@ require 'json'
 # }
 #
 class MarathonAppsCheck < Sensu::Plugin::Check::CLI
-  REFERENCES = %w(health status).freeze
-  STATUS_STATES = %w(waiting delayed suspended deploying running).freeze
-  HEALTH_STATES = %w(unscheduled overcapacity staged unknown unhealthy healthy).freeze
-  APPS_EMBED_RESOURCES = %w(apps.task apps.count apps.deployments apps.lastTaskFailure apps.failures apps.taskStats).freeze
+  REFERENCES = %w[health status].freeze
+  STATUS_STATES = %w[waiting delayed suspended deploying running].freeze
+  HEALTH_STATES = %w[unscheduled overcapacity staged unknown unhealthy healthy].freeze
+  APPS_EMBED_RESOURCES = %w[apps.task apps.count apps.deployments apps.lastTaskFailure apps.failures apps.taskStats].freeze
   DEFAULT_CHECK_CONFIG = <<-CONFIG.gsub(/^\s+\|/, '').freeze
     |{
     |  "_": {"ttl": 70},
@@ -223,7 +225,7 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
       failed_apps_to_be_reported += 1 unless process_app_results(app, queue, check_config)
     end
 
-    if failed_apps_to_be_reported > 0
+    if failed_apps_to_be_reported.positive?
       critical "#{failed_apps_to_be_reported} apps are failed to be reported to sensu"
     else
       ok 'Marathon Apps Status and Health check is running properly'
@@ -300,13 +302,13 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
     # https://sensuapp.org/docs/latest/reference/checks.html#example-check-definition
     # https://sensuapp.org/docs/latest/reference/checks.html#check-result-specification
     check_result.each do |k, v|
-      if %w(publish standalone auto_resolve force_resolve handle truncate_output).include?(k)
+      if %w[publish standalone auto_resolve force_resolve handle truncate_output].include?(k)
         # Boolean
         check_result[k] = v.to_s.eql?('true')
-      elsif %w(status interval issued executed timeout ttl ttl_status low_flap_threshold high_flap_threshold truncate_output_length).include?(k)
+      elsif %w[status interval issued executed timeout ttl ttl_status low_flap_threshold high_flap_threshold truncate_output_length].include?(k)
         # Integer
         check_result[k] = Integer(v)
-      elsif %w(subscribers handlers aggregates).include?(k)
+      elsif %w[subscribers handlers aggregates].include?(k)
         # Array
         check_result[k] = Array(v.split(','))
       end
@@ -342,7 +344,7 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
     true
   rescue RestClient::ExceptionWithResponse => e
     # print a message about failing POST but keep going
-    STDERR.puts "Error while trying to POST check result for #{data} (#{config[:sensu_client_url]}/results): #{e.response}"
+    warn "Error while trying to POST check result for #{data} (#{config[:sensu_client_url]}/results): #{e.response}"
     false
   end
 
@@ -414,13 +416,13 @@ class MarathonAppsCheck < Sensu::Plugin::Check::CLI
       'unscheduled'
     elsif app['instances'].to_i < app['tasksRunning'].to_i
       'overcapacity'
-    elsif app['tasksStaged'].to_i > 0
+    elsif app['tasksStaged'].to_i.positive?
       'staged'
     elsif app['healthChecks'].to_a.empty?
       'unknown'
-    elsif app['tasksUnhealthy'].to_i > 0
+    elsif app['tasksUnhealthy'].to_i.positive?
       'unhealthy'
-    elsif app['healthChecks'].to_a.any? && app['tasksHealthy'].to_i > 0
+    elsif app['healthChecks'].to_a.any? && app['tasksHealthy'].to_i.positive?
       'healthy'
     else
       ''

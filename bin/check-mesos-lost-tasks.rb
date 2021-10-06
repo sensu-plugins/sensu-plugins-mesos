@@ -1,4 +1,6 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: false
+
 #
 #   check-mesos-lost-tasks
 #
@@ -81,7 +83,7 @@ class MesosLostTasksCheck < Sensu::Plugin::Check::CLI
          boolean: true
 
   def run
-    if config[:value] < 0
+    if config[:value].negative?
       unknown 'Number of lost tasks cannot be negative, please set --value to a number greater or equal to 0'
     end
 

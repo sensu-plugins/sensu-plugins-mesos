@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './spec_helper.rb'
 require_relative '../bin/check-mesos-mem-balance.rb'
 require_relative './fixtures.rb'
@@ -42,3 +44,4 @@ describe 'MesosMemBalanceCheck' do
     end
   end
 end
+# rubocop:enable Style/ClassVars

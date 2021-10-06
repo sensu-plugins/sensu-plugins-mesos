@@ -1,5 +1,6 @@
 #! /usr/bin/env ruby
-#
+# frozen_string_literal: false
+
 #   mesos-metrics
 #
 # DESCRIPTION:
@@ -93,15 +94,15 @@ class MesosMetrics < Sensu::Plugin::Metric::CLI::Graphite
     begin
       r = RestClient::Resource.new("http://#{config[:server]}:#{port}#{uri}", timeout: config[:timeout]).get
       results = JSON.parse(r)
-      if config[:include_role] == 'true' && config[:mode] == 'master'
-        add_metric = if results['master/elected'] != 0.0
+      add_metric = if config[:include_role] == 'true' && config[:mode] == 'master'
+                     if results['master/elected'] != 0.0
                        'leader.'
                      else
                        'standby.'
                      end
-      else
-        add_metric = ''
-      end
+                   else
+                     ''
+                   end
       results.each do |k, v|
         k_copy = k.tr('/', '.')
         output([scheme, add_metric + k_copy].join('.'), v)

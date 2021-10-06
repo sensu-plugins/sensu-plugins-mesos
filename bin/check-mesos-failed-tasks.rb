@@ -1,4 +1,6 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: false
+
 #
 #   check-mesos-failed-tasks
 #
@@ -81,7 +83,7 @@ class MesosFailedTasksCheck < Sensu::Plugin::Check::CLI
          boolean: true
 
   def run
-    if config[:value].to_i < 0
+    if config[:value].to_i.negative?
       unknown 'Number of failed tasks cannot be negative'
     end
 

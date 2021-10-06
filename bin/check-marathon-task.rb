@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
-#
+# frozen_string_literal: false
+
 #   check-marathon-task
 #
 # DESCRIPTION:
@@ -126,8 +127,8 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
         ok message
       rescue Errno::ECONNREFUSED, SocketError
         failures << "Marathon on #{s} could not be reached"
-      rescue => err
-        failures << "error caught trying to reach Marathon on #{s}: #{err}"
+      rescue StandardError => e
+        failures << "error caught trying to reach Marathon on #{s}: #{e}"
       end
     end
 
@@ -162,6 +163,7 @@ class MarathonTaskCheck < Sensu::Plugin::Check::CLI
         if check['alive']
           next
         end
+
         message = check['lastFailureCause'] ||
                   'Health check not alive'
         unhealthy << message

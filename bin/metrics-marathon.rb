@@ -1,5 +1,6 @@
 #! /usr/bin/env ruby
-#
+# frozen_string_literal: false
+
 #   marathon-metrics
 #
 # DESCRIPTION:
@@ -34,7 +35,7 @@ require 'socket'
 require 'json'
 
 class MarathonMetrics < Sensu::Plugin::Metric::CLI::Graphite
-  SKIP_ROOT_KEYS = %w(version start end).freeze
+  SKIP_ROOT_KEYS = %w[version start end].freeze
   option :scheme,
          description: 'Metric naming scheme',
          short: '-s SCHEME',
@@ -82,7 +83,7 @@ class MarathonMetrics < Sensu::Plugin::Metric::CLI::Graphite
       all_metrics[metric_groups_key].each do |metric_key, metric_value|
         metric_value.each do |metric_hash_key, metric_hash_value|
           output([config[:scheme], metric_groups_key, metric_key, metric_hash_key].join('.'), metric_hash_value) \
-            if metric_hash_value.is_a?(Numeric) && (metric_hash_key == 'count' || metric_hash_key == 'value')
+            if metric_hash_value.is_a?(Numeric) && %w[value count].include?(metric_hash_key)
         end
       end
     end

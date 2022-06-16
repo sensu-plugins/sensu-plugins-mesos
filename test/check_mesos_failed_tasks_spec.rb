@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './spec_helper.rb'
 require_relative '../bin/check-mesos-failed-tasks.rb'
 require_relative './fixtures.rb'
@@ -42,3 +44,4 @@ describe 'MesosFailedTasksCheck' do
     end
   end
 end
+# rubocop:enable Style/ClassVars

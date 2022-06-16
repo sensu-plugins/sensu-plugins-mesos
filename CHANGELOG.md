@@ -4,6 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 This CHANGELOG follows the format listed [here](https://github.com/sensu-plugins/community/blob/master/HOW_WE_CHANGELOG.md)
 
 ## [Unreleased]
+### Breaking Change
+- updated to use sensu-plugin 4.0 runtime dependency
+- update reguired ruby version to 2.3 minimum
+- update multiple development dependencies  
+
+### Fixed
+- rubocop style fixes
 
 ## [2.5.0] - 2018-09-10
 ### Fixed

@@ -28,3 +28,10 @@ RegexpLiteral:
 
 Style/Documentation:
   Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'test/**/*.rb'
+    - 'sensu-plugins-mesos.gemspec' 

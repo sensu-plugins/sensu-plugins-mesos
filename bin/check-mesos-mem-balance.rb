@@ -1,4 +1,6 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: false
+
 #
 #   check-mesos-mem-balance
 #
@@ -82,7 +84,7 @@ class MesosMemBalanceCheck < Sensu::Plugin::Check::CLI
          required: false
 
   def run
-    if config[:crit] < 0 || config[:warn] < 0
+    if config[:crit].negative? || config[:warn].negative?
       unknown "Thresholds cannot be negative, crit: #{config[:crit]}, warn: #{config[:warn]}"
     end
 

@@ -1,18 +1,13 @@
 sudo: true
-services: docker
+service: docker
 language: ruby
 cache:
 - bundler
 before_install:
   - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
-  - gem install bundler -v 1.15
 install:
 - bundle install
 rvm:
-- 2.0
-- 2.1
-- 2.2
-- 2.3.0
 - 2.4.1
 notifications:
   email:
@@ -25,18 +20,24 @@ script:
 - gem install sensu-plugins-mesos-*.gem
 - bundle exec rake quick
 - bundle exec rake kitchen:ruby-`echo $TRAVIS_RUBY_VERSION | sed -e "s/\.//g"`-debian-8
+before_deploy:
+- bash -c "[ ! -d bonsai/ ] && git clone https://github.com/sensu/sensu-go-bonsai-asset.git bonsai || echo 'bonsai/ exists, skipping git clone'"
 
 deploy:
-  provider: rubygems
+- provider: script
+  script: bonsai/ruby26-runtime/travis-build-ruby-plugin-assets.sh sensu-plugins-mesos
+  skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
+    rvm: 2.4.1
+
+- provider: rubygems
   api_key:
     secure: U6EYo7GWTDVOLZarEndjkQ6N3GnzOjYVDLKTQ1agNhOnxkbZtRYqXzcZkZIEIrWR6HkzKbuv4yVotLwnDkbBLkaVCG4BCqONmS4FYE2UJoXQPb37kwkzkedF9FSCD6N/bEnQW9vhifEDtWrH0+m/vA7o8a5C5NjtTrBMi+FGAuk=
   gem: sensu-plugins-mesos
   on:
     tags: true
     all_branches: true
-    rvm: 2.0
-    rvm: 2.1
-    rvm: 2.2
-    rvm: 2.3.0
     rvm: 2.4.1
     repo: sensu-plugins/sensu-plugins-mesos

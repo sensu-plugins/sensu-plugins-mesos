@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 def marathon_response
   File.read File.join(__dir__, 'fixtures', __method__.to_s + '.json')
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './spec_helper.rb'
 require_relative '../bin/check-marathon-task.rb'
 require_relative './fixtures.rb'
@@ -53,3 +55,4 @@ describe 'MarathonTaskCheck' do
     end
   end
 end
+# rubocop:enable Style/ClassVars
